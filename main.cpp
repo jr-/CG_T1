@@ -139,6 +139,7 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
 extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
     GtkTreeIter iterP;
     gboolean valid;
+    std::string name;
     gint result = gtk_dialog_run (GTK_DIALOG (dialog_plg));
     GtkTreeView* tree = GTK_TREE_VIEW( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "treeview_addcoordplg" ) );
     dgplg_model = gtk_tree_view_get_model(tree);
@@ -148,6 +149,7 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
         case GTK_RESPONSE_OK:
             gdouble x,y;
             gdouble xI, yI;
+            name = gtk_entry_get_text(GTK_ENTRY(entryName_dgplg));
             valid = gtk_tree_model_get_iter_first(dgplg_model, &iterP);
             gtk_tree_model_get(dgplg_model, &iterP, 0, &x, 1, &y, -1);
             cairo_t *cr;
@@ -180,6 +182,12 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
             cairo_stroke(cr);
             gtk_widget_queue_draw (window_widget);
             gtk_list_store_clear(listStore_dgplg);
+
+
+            //PARTE QUE MOSTRA NO DISPLAYFILE
+            gtk_list_store_append(listStore, &iter);
+            gtk_list_store_set(listStore, &iter, 0, name.c_str(), 1, "Poligono", -1);
+
             break;
         default:
             gtk_list_store_clear(listStore_dgplg);
