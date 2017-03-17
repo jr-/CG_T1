@@ -45,8 +45,9 @@ public:
 
 class Poligon : GRPObject {
 using GRPObject::_coords;
+using GRPObject::_size;
 public:
-    Poligon(string name, vector<Coordinate>* _coords) : GRPObject(name), _coords(_coords) {}
+    Poligon(string name, vector<Coordinate> coords) : GRPObject(name) { _coords = coords; }
     ~Poligon() {}
-    Coordinate& getCoordinate(unsigned int i) { if (i < size) return _coords[i]; throw "Invalid index i";}
+    Coordinate& getCoordinate(unsigned int i) { if (i < _size) return _coords[i]; throw "Invalid index i";}
 };

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-//#include "GRPObject.hpp"
+#include "GRPObject.hpp"
 #define PI 3.1415926535897932384626433832795
 static cairo_surface_t *surface = NULL;
 
