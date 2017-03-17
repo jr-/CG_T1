@@ -45,20 +45,6 @@
       <!-- column-name Tipo -->
       <column type="gchararray"/>
     </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">oa</col>
-        <col id="1" translatable="yes">addd</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">asdasdsad</col>
-        <col id="1" translatable="yes">asdasd</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">adsdasd</col>
-        <col id="1" translatable="yes">zxczxv</col>
-      </row>
-    </data>
   </object>
   <object class="GtkWindow" id="main_window">
     <property name="width_request">600</property>
@@ -459,7 +445,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry1">
+                  <object class="GtkEntry" id="name_dgline">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                   </object>
