@@ -2,19 +2,26 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "GRPObject.hpp"
+//#include "GRPObject.hpp"
 #define PI 3.1415926535897932384626433832795
 static cairo_surface_t *surface = NULL;
+
+GtkBuilder  *gtkBuilder;
 GtkWidget *drawing_area;
 GtkWidget *window_widget;
 GtkWidget *dialog_pnt, *dialog_line;
 GtkWidget *entryName_dgpnt, *entryX_dgpnt, *entryY_dgpnt;
 GtkWidget *entryName_dgline, *entryX1_dgline, *entryY1_dgline, *entryX2_dgline, *entryY2_dgline;
+GtkWidget *dialog_plg, *entryName_dgplg, *entryX_dgplg, *entryY_dgplg;
 
 GtkTreeModel *displayfile_model;
 GtkTreeSelection *treeSelection;
 GtkListStore *listStore;
 GtkTreeIter iter;
+
+GtkListStore *listStore_dgplg;
+GtkTreeModel *dgplg_model;
+GtkTreeSelection *treeplgSelection;
 
 
 /*Clear the surface, removing the scribbles*/
@@ -51,6 +58,20 @@ static gboolean redraw (GtkWidget *widget, cairo_t   *cr,  gpointer   data){
 }
 
 //Callbacks
+extern "C" G_MODULE_EXPORT void btn_add_coord_plg_clicked(){
+  listStore_dgplg = GTK_LIST_STORE( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "liststore_addcoordplg"));
+  GtkTreeIter iterP;
+  double x = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryX_dgplg));
+  double y = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryY_dgplg));
+
+  gtk_list_store_append(listStore_dgplg, &iterP);
+  gtk_list_store_set(listStore_dgplg, &iterP, 0, x, 1, y, -1);
+
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(entryX_dgplg), 0.0);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(entryY_dgplg), 0.0);
+
+
+}
 extern "C" G_MODULE_EXPORT void btn_line_clicked(){
    double x1, y1, x2, y2;
    std::string name;
@@ -116,19 +137,59 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
 }
 
 extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
-    cairo_t *cr;
-    cr = cairo_create (surface);
-    cairo_move_to(cr, 0, 0);
-    cairo_line_to(cr, 200, 100);
-    cairo_line_to(cr, 400, 400);
-    cairo_line_to(cr, 0, 0);
-    cairo_stroke(cr);
-    gtk_widget_queue_draw (window_widget);
+    GtkTreeIter iterP;
+    gboolean valid;
+    gint result = gtk_dialog_run (GTK_DIALOG (dialog_plg));
+    GtkTreeView* tree = GTK_TREE_VIEW( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "treeview_addcoordplg" ) );
+    dgplg_model = gtk_tree_view_get_model(tree);
+    treeplgSelection = gtk_tree_view_get_selection(tree);
+    switch (result)
+    {
+        case GTK_RESPONSE_OK:
+            gdouble x,y;
+            gdouble xI, yI;
+            valid = gtk_tree_model_get_iter_first(dgplg_model, &iterP);
+            gtk_tree_model_get(dgplg_model, &iterP, 0, &x, 1, &y, -1);
+            cairo_t *cr;
+            cr = cairo_create (surface);
+            cairo_move_to(cr, x, y);
+            std::cout << x << ".\n";
+            std::cout << y << ".\n";
+            xI = x;
+            yI = y;
+            valid = gtk_tree_model_iter_next(dgplg_model, &iterP);
+
+            while(valid)
+            {
+                gtk_tree_model_get(dgplg_model, &iterP, 0, &x, 1, &y, -1);
+                cairo_line_to(cr, x, y);
+                std::cout << x << ".\n";
+                std::cout << y << ".\n";
+                valid = gtk_tree_model_iter_next(dgplg_model, &iterP);
+            }
+
+
+
+
+
+            // DESENHA NA TELA
+
+
+            // cairo_line_to(cr, 400, 400);
+            cairo_line_to(cr, xI, yI);
+            cairo_stroke(cr);
+            gtk_widget_queue_draw (window_widget);
+            gtk_list_store_clear(listStore_dgplg);
+            break;
+        default:
+            gtk_list_store_clear(listStore_dgplg);
+            break;
+    }
+    gtk_widget_hide(dialog_plg);
 }
 
 
 int main(int argc, char *argv[]) {
-    GtkBuilder  *gtkBuilder;
     gtk_init(&argc, &argv);
 
     gtkBuilder = gtk_builder_new();
@@ -138,18 +199,37 @@ int main(int argc, char *argv[]) {
     window_widget = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "main_window") );
     drawing_area = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "drawing_area") );
 
+
+    //DIALOGS WIDGETS ----
     dialog_pnt = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_pnt") );
     dialog_line = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_line") );
+    dialog_plg = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_plg") );
+    // --------------------
 
+    //POINT WIDGETS ----
     entryName_dgpnt = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "name_dgpnt") );
     entryX_dgpnt = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryx_dgpnt") );
     entryY_dgpnt = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryy_dgpnt") );
+    // -----------------
 
+
+    //LINE WIDGETS ----
     entryName_dgline = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "name_dgline") );
     entryX1_dgline = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryx1_dgline") );
     entryY1_dgline = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryy1_dgline") );
     entryX2_dgline = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryx2_dgline") );
     entryY2_dgline = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryy2_dgline") );
+    // ---------------
+
+    //POLYGON WIDGETS ----
+    entryName_dgplg = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "name_dgplg") );
+    entryX_dgplg = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryx_dgplg") );
+    entryY_dgplg = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryy_dgplg") );
+
+    // -------------------
+
+
+
 
 
     GtkTreeView* tree = GTK_TREE_VIEW( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "treeview_displayf" ) );
