@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <vector>
-#include "GObject.hpp"
+#include "GRPObject.hpp"
 
 class Window {
 public:
