@@ -8,7 +8,8 @@ class Coordinate {
       }
       double getX() const { return _x;}
       double getY() const { return _y;}
-      void move(double x, double y) { _x += x; _y+=y; }
+      void move(double x, double y) { _x += x; _y += y; }
+
   private:
       double _x, _y;
 };

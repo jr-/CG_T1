@@ -8,6 +8,11 @@ public:
 
     void move(double x, double y) { wll.move(x,y); wur.move(x,y); };
     void zoom(double value);
+    Coordinate getLowerLeftCoord() { return wll; }
+    Coordinate getUpperRightCoord() { return wur; }
+    double getWidth() { return _width; }
+    double getHeight() { return _height; }
+
 private:
     Coordinate wll, wur;
     double _width, _height;
