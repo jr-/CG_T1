@@ -2,10 +2,13 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "GRPObject.hpp"
+#include "Object.hpp"
 #define PI 3.1415926535897932384626433832795
 static cairo_surface_t *surface = NULL;
+using namespace std;
 
+double sx, sy;
+vector<Object> displayfile;
 GtkBuilder  *gtkBuilder;
 GtkWidget *drawing_area;
 GtkWidget *window_widget;
@@ -72,35 +75,63 @@ extern "C" G_MODULE_EXPORT void btn_add_coord_plg_clicked(){
 
 
 }
+
+extern "C" G_MODULE_EXPORT void btn_moveto_right_clicked(){
+    sx += -50;
+    clear_surface();
+    gtk_widget_queue_draw (window_widget);
+}
+
+extern "C" G_MODULE_EXPORT void btn_moveto_down_clicked(){ }
+
+extern "C" G_MODULE_EXPORT void btn_moveto_left_clicked(){ }
+
+extern "C" G_MODULE_EXPORT void btn_moveto_up_clicked(){ }
+
+extern "C" G_MODULE_EXPORT void btn_zoom_out_clicked(){ }
+
+extern "C" G_MODULE_EXPORT void btn_zoom_in_clicked(){ }
+
+
 extern "C" G_MODULE_EXPORT void btn_line_clicked(){
    double x1, y1, x2, y2;
-   std::string name;
+   string name;
+   Line *l1;
    gint result = gtk_dialog_run (GTK_DIALOG (dialog_line));
    switch (result)
      {
        case GTK_RESPONSE_OK:
+          //getting dialog values
           name = gtk_entry_get_text(GTK_ENTRY(entryName_dgline));
           x1 = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryX1_dgline));
           y1 = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryY1_dgline));
           x2 = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryX2_dgline));
           y2 = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryY2_dgline));
-
-          //PARTE QUE MOSTRA NO DISPLAYFILE
-          gtk_list_store_append(listStore, &iter);
-          gtk_list_store_set(listStore, &iter, 0, name.c_str(), 1, "Reta", -1);
-
           // --------------------
 
+          //CREATE OBJECT/model e add object to the displayfile
+          l1 = new Line(name);
+          l1->addCoordinate(x1,y1);
+          l1->addCoordinate(x2,y2);
 
+          displayfile.push_back(*l1);
+          // -------------------------
 
+          //show in displayfile interface
+          gtk_list_store_append(listStore, &iter);
+          gtk_list_store_set(listStore, &iter, 0, name.c_str(), 1, "Reta", -1);
+          // -------------------------------
 
+          // draw in the drawing_area
           cairo_t *cr;
           cr = cairo_create (surface);
           cairo_move_to(cr, x1, y1);
           cairo_line_to(cr, x2, y2);
           cairo_stroke(cr);
           gtk_widget_queue_draw (window_widget);
+          // -----------------------------
           break;
+
        default:
           break;
      }
@@ -109,26 +140,37 @@ extern "C" G_MODULE_EXPORT void btn_line_clicked(){
 
 extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
    double x, y;
-   std::string name;
+   string name;
+   Point *point;
    gint result = gtk_dialog_run (GTK_DIALOG (dialog_pnt));
    switch (result)
    {
        case GTK_RESPONSE_OK:
+          //getting dialog values
           name = gtk_entry_get_text(GTK_ENTRY(entryName_dgpnt));
           x = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryX_dgpnt));
           y = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryY_dgpnt));
+          // ---------------------
 
-          //PARTE QUE MOSTRA NO DISPLAYFILE
+          //CREATE OBJECT/model e add object to the displayfile
+          point = new Point(name);
+          point->addCoordinate(x,y);
+
+          displayfile.push_back(*point);
+          // ---------------------------
+
+          //show in displayfile interface
           gtk_list_store_append(listStore, &iter);
           gtk_list_store_set(listStore, &iter, 0, name.c_str(), 1, "Ponto", -1);
-
           // --------------------
+
+          //draw in the drawing_area
           cairo_t *cr;
           cr = cairo_create (surface);
-
           cairo_arc(cr, x, y, 1.0, 0.0, (2*PI) );
           cairo_stroke(cr);
           gtk_widget_queue_draw (window_widget);
+          // ------------------------
           break;
        default:
           break;
@@ -139,7 +181,8 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
 extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
     GtkTreeIter iterP;
     gboolean valid;
-    std::string name;
+    string name;
+    Polygon *poly;
     gint result = gtk_dialog_run (GTK_DIALOG (dialog_plg));
     GtkTreeView* tree = GTK_TREE_VIEW( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "treeview_addcoordplg" ) );
     dgplg_model = gtk_tree_view_get_model(tree);
@@ -151,6 +194,8 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
             gdouble xI, yI;
             name = gtk_entry_get_text(GTK_ENTRY(entryName_dgplg));
             valid = gtk_tree_model_get_iter_first(dgplg_model, &iterP);
+            poly = new Polygon(name);
+
             gtk_tree_model_get(dgplg_model, &iterP, 0, &x, 1, &y, -1);
             cairo_t *cr;
             cr = cairo_create (surface);
@@ -159,6 +204,7 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
             std::cout << y << ".\n";
             xI = x;
             yI = y;
+            poly->addCoordinate(x,y);
             valid = gtk_tree_model_iter_next(dgplg_model, &iterP);
 
             while(valid)
@@ -167,26 +213,23 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
                 cairo_line_to(cr, x, y);
                 std::cout << x << ".\n";
                 std::cout << y << ".\n";
+                poly->addCoordinate(x,y);
                 valid = gtk_tree_model_iter_next(dgplg_model, &iterP);
             }
 
-
-
-
-
-            // DESENHA NA TELA
-
-
-            // cairo_line_to(cr, 400, 400);
+            // draw in the drawing_area
             cairo_line_to(cr, xI, yI);
             cairo_stroke(cr);
             gtk_widget_queue_draw (window_widget);
+            // =====================
+
             gtk_list_store_clear(listStore_dgplg);
+            displayfile.push_back(*poly);
 
-
-            //PARTE QUE MOSTRA NO DISPLAYFILE
+            //show in displayfile interface
             gtk_list_store_append(listStore, &iter);
             gtk_list_store_set(listStore, &iter, 0, name.c_str(), 1, "Poligono", -1);
+            // ===========================================
 
             break;
         default:
@@ -220,7 +263,6 @@ int main(int argc, char *argv[]) {
     entryY_dgpnt = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryy_dgpnt") );
     // -----------------
 
-
     //LINE WIDGETS ----
     entryName_dgline = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "name_dgline") );
     entryX1_dgline = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryx1_dgline") );
@@ -235,9 +277,6 @@ int main(int argc, char *argv[]) {
     entryY_dgplg = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryy_dgplg") );
 
     // -------------------
-
-
-
 
 
     GtkTreeView* tree = GTK_TREE_VIEW( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "treeview_displayf" ) );
