@@ -1,13 +1,12 @@
-#include "Coordinate.hpp"
-#define MAX 2000
-#define MIN 10
+#define MAX_SIZE 2000
+#define MIN_SIZE 10
 
 class Window {
 public:
-    Window(double width, double height) wll(0,0), wur(width, height), _width(width), _height(heigth) {}
+    Window(double width, double height) : wll(0,0), wur(width, height), _width(width), _height(height) {}
     ~Window() {}
 
-    void move(double x, double y) { wll.move(x,y); wur(x,y); };
+    void move(double x, double y) { wll.move(x,y); wur.move(x,y); };
     void zoom(double value);
 private:
     Coordinate wll, wur;
@@ -16,8 +15,8 @@ private:
 
 void Window::zoom(double value) {
     value = value / 2;
-    bool max = _width + value > MAX || _height + value < MAX;
-    bool min = _width + value < MIN || _height + value < MIN;
+    bool max = _width + value > MAX_SIZE || _height + value < MAX_SIZE;
+    bool min = _width + value < MIN_SIZE || _height + value < MIN_SIZE;
     if (!min && !max){
         wll.move(value,value);
         wur.move(-value,-value);
