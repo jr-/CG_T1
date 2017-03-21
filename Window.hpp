@@ -1,36 +1,26 @@
-//
-//  Generic.cpp
-//  
-//
-//  Created by Andre de Carvalho on 15/03/17.
-//
-//
-
-#include <stdio.h>
-#include <vector>
-#include "GRPObject.hpp"
+#include "Coordinate.hpp"
+#define MAX 2000
+#define MIN 10
 
 class Window {
 public:
-    Window(unsigned int width, unsigned int height) : _width(width), _height(height) {}
+    Window(double width, double height) wll(0,0), wur(width, height), _width(width), _height(heigth) {}
     ~Window() {}
-    
-    Coordinate* position() { return _pos; }
-    unsigned int width() { return _width; }
-    unsigned int height() { return _height; }
-    void zoom(double value) {
-        _width -= value;
-        _height -= value;
-        value = value / 2;
-        _pos.move(value, value);
-    }
-    
-    void moveTo(Coordinate * c) { _pos = c; }
-    void move(double x, double y) { _pos.move(x, y); }
-    
-private:
-    unsigned int _width, _height;
-    Coordinate * _pos;
-    
-}
 
+    void move(double x, double y) { wll.move(x,y); wur(x,y); };
+    void zoom(double value);
+private:
+    Coordinate wll, wur;
+    double _width, _height;
+};
+
+void Window::zoom(double value) {
+    value = value / 2;
+    bool max = _width + value > MAX || _height + value < MAX;
+    bool min = _width + value < MIN || _height + value < MIN;
+    if (!min && !max){
+        wll.move(value,value);
+        wur.move(-value,-value);
+    }
+
+};
