@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include "Object.hpp"
-#include "Window.hpp" //apenas para teste
+#include "ViewPort.hpp" //apenas para teste
 #define PI 3.1415926535897932384626433832795
 static cairo_surface_t *surface = NULL;
 using namespace std;
