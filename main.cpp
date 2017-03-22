@@ -83,18 +83,53 @@ extern "C" G_MODULE_EXPORT void btn_moveto_right_clicked(){
     cairo_t *cr;
     cr = cairo_create (surface);
     vp->drawObjects(displayfile, cr);
-    gtk_widget_queue_draw (window_widget);
+    gtk_widget_queue_draw(window_widget);
 }
 
-extern "C" G_MODULE_EXPORT void btn_moveto_down_clicked(){ }
+extern "C" G_MODULE_EXPORT void btn_moveto_down_clicked(){
+    vp->move(0.0, 10.0);
+    clear_surface();
+    cairo_t *cr;
+    cr = cairo_create (surface);
+    vp->drawObjects(displayfile, cr);
+    gtk_widget_queue_draw(window_widget);
+}
 
-extern "C" G_MODULE_EXPORT void btn_moveto_left_clicked(){ }
+extern "C" G_MODULE_EXPORT void btn_moveto_left_clicked(){
+    vp->move(10.0, 0.0);
+    clear_surface();
+    cairo_t *cr;
+    cr = cairo_create (surface);
+    vp->drawObjects(displayfile, cr);
+    gtk_widget_queue_draw(window_widget);
+}
 
-extern "C" G_MODULE_EXPORT void btn_moveto_up_clicked(){ }
+extern "C" G_MODULE_EXPORT void btn_moveto_up_clicked(){
+    vp->move(0.0, -10.0);
+    clear_surface();
+    cairo_t *cr;
+    cr = cairo_create (surface);
+    vp->drawObjects(displayfile, cr);
+    gtk_widget_queue_draw(window_widget);
+}
 
-extern "C" G_MODULE_EXPORT void btn_zoom_out_clicked(){ }
+extern "C" G_MODULE_EXPORT void btn_zoom_out_clicked(){
+    vp->zoom(5.0);
+    clear_surface();
+    cairo_t *cr;
+    cr = cairo_create (surface);
+    vp->drawObjects(displayfile, cr);
+    gtk_widget_queue_draw(window_widget);
+}
 
-extern "C" G_MODULE_EXPORT void btn_zoom_in_clicked(){ }
+extern "C" G_MODULE_EXPORT void btn_zoom_in_clicked(){
+    vp->zoom(-5.0);
+    clear_surface();
+    cairo_t *cr;
+    cr = cairo_create (surface);
+    vp->drawObjects(displayfile, cr);
+    gtk_widget_queue_draw(window_widget);
+}
 
 
 extern "C" G_MODULE_EXPORT void btn_line_clicked(){
@@ -130,7 +165,7 @@ extern "C" G_MODULE_EXPORT void btn_line_clicked(){
           cairo_t *cr;
           cr = cairo_create (surface);
           vp->drawLine(l1->getCoords(), cr);
-          gtk_widget_queue_draw (window_widget);
+          gtk_widget_queue_draw(window_widget);
           // -----------------------------
           break;
 
@@ -171,7 +206,7 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           cr = cairo_create (surface);
           vp->drawPoint(point->getCoords(), cr);
 
-          gtk_widget_queue_draw (window_widget);
+          gtk_widget_queue_draw(window_widget);
           // ------------------------
           break;
        default:
