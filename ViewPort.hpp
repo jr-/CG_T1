@@ -27,14 +27,14 @@ vector<Coordinate> ViewPort::transformObject(vector<Coordinate> coords) {
     xmin = cmin.getX(); xmax = cmax.getX();
     ymin = cmin.getY(); ymax = cmax.getY();
 
-    cout << xmax << endl;
-    cout << ymax << endl;
+    cout << "Wxmin: " << xmin << " Wxmax: " << xmax << endl;
+    cout << "Wymin: " << ymin << " Wymax: " << ymax << endl;
 
     for (Coordinate c : coords){
+        std::cout << "Init Coords: (" << c.getX() <<","<< c.getY()<<")" << '\n';
         xvp = (c.getX() - xmin) / (xmax - xmin) * (_width);
-        yvp = (1 - ((c.getY() - ymin)/(ymax - ymin))) * (_height);
-        cout << xvp << endl;
-        cout << yvp << endl;
+        yvp = (1 - (c.getY() - ymin)/(ymax - ymin)) * (_height);
+        cout << "Transformed Coords: (" << xvp <<","<< yvp<<")" << endl;
         coords_vp.push_back(Coordinate(xvp, yvp));
     }
 
@@ -61,8 +61,8 @@ void ViewPort::drawObjects(vector<Object> displayfile, cairo_t *cr){
     }
 }
 
-void ViewPort::drawPoint(vector<Coordinate> c, cairo_t *cr) {
-    vector<Coordinate> coords = transformObject(c);
+void ViewPort::drawPoint(vector<Coordinate> cs, cairo_t *cr) {
+    vector<Coordinate> coords = transformObject(cs);
     cout << coords[0].getX() << endl;
     cout << coords[0].getY() << endl;
     cairo_arc(cr, coords[0].getX(), coords[0].getY(), 1.0, 0.0, (2*PI) );
@@ -72,7 +72,7 @@ void ViewPort::drawPoint(vector<Coordinate> c, cairo_t *cr) {
 void ViewPort::drawLine(vector<Coordinate> c, cairo_t *cr) {
     vector<Coordinate> coords = transformObject(c);
     cairo_move_to(cr, coords[0].getX(), coords[0].getY());
-    cairo_line_to(cr, coords[1].getX(), coords[1].getX() );
+    cairo_line_to(cr, coords[1].getX(), coords[1].getY());
     cairo_stroke(cr);
 }
 
