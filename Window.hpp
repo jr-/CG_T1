@@ -19,12 +19,17 @@ private:
 };
 
 void Window::zoom(double value) {
-    value = value / 2;
-    bool max = _width + value > MAX_SIZE || _height + value < MAX_SIZE;
+    // value = value;
+    std::cout << "Width: "<< _width << " Height: " << _height << '\n';
+
+    bool max = _width + value > MAX_SIZE || _height + value > MAX_SIZE;
     bool min = _width + value < MIN_SIZE || _height + value < MIN_SIZE;
+    std::cout << max << " " << min << '\n';
     if (!min && !max){
         wll.move(value,value);
         wur.move(-value,-value);
+        _width = wur.getX() - wll.getX();
+        _height = wur.getY() - wll.getY();
     }
 
 };
