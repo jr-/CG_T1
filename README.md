@@ -1,6 +1,6 @@
 # CG_T1
 SGI - Sistema Gráfico Interativo
-======================================================= Part 1.2 ===================================================
+===================================== Part 1.2 ====================================
 Suportar as 3 transformações básicas e a rotação arbitrária em 2D. 
 
 --- Model ---
@@ -21,4 +21,4 @@ Rotações:
 Na translação você simplesmente calcula a matriz no sistema de coordenadas homogêneo e aplica.
 
 Para o escalonamento e para a rotação você vai precisar determinar o centro geométrico ou centro de massa do objeto a ser escalonado ou rotacionado. No caso da rotação nós já discutimos a razão para tanto: a rotação arbitrária que nos parece natural, é aquela onde um objeto roda em torno de seu centro. No caso do escalonamento temos a mesma situação: o escalonamento somente parece natural se o objeto parece “encolher” ou “inchar”.
-======================================================= Part 1.2 ===================================================
+============================ Part 1.2 ===============================
