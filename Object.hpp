@@ -14,17 +14,18 @@ class Coordinate {
       double _x, _y;
 };
 
+enum ObjectType{POINT, LINE, POLYGON};
 
 class Object {
   private:
        string _name;
        vector<Coordinate> _coords;
-       string _type;
+       ObjectType _type;
   public:
-    Object(string name, string type) : _name(name), _type(type) {}
+    Object(string name, ObjectType type) : _name(name), _type(type) {}
     virtual ~Object() {}
     string getName() const { return _name;}
-    string getTypeName() const {return _type;}
+    ObjectType getType() const {return _type;}
     vector<Coordinate>& getCoords() {return _coords;}
     int getSize() const {return _coords.size();}
     void addCoordinate(double x, double y) {_coords.emplace_back(x,y);}
@@ -32,15 +33,15 @@ class Object {
 //TODO usar enum??
 class Point: public Object {
   public:
-    Point(string name) : Object(name, "point") {}
+    Point(string name) : Object(name, ObjectType::POINT) {}
 };
 
 class Line: public Object {
   public:
-    Line(string name) : Object(name, "line") {}
+    Line(string name) : Object(name, ObjectType::LINE) {}
 };
 
 class Polygon: public Object {
   public:
-    Polygon(string name) : Object(name, "polygon") {}
+    Polygon(string name) : Object(name, ObjectType::POLYGON) {}
 };

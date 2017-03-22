@@ -4,11 +4,11 @@
 #include <string>
 #include "Object.hpp"
 #include "ViewPort.hpp" //apenas para teste
-#define PI 3.1415926535897932384626433832795
 static cairo_surface_t *surface = NULL;
 using namespace std;
 
 double sx, sy;
+ViewPort *vp;
 vector<Object> displayfile;
 GtkBuilder  *gtkBuilder;
 GtkWidget *drawing_area;
@@ -78,8 +78,11 @@ extern "C" G_MODULE_EXPORT void btn_add_coord_plg_clicked(){
 }
 
 extern "C" G_MODULE_EXPORT void btn_moveto_right_clicked(){
-    sx += -50;
+    vp->move(-10.0, 0.0);
     clear_surface();
+    cairo_t *cr;
+    cr = cairo_create (surface);
+    vp->drawObjects(displayfile, cr);
     gtk_widget_queue_draw (window_widget);
 }
 
@@ -126,9 +129,7 @@ extern "C" G_MODULE_EXPORT void btn_line_clicked(){
           // draw in the drawing_area
           cairo_t *cr;
           cr = cairo_create (surface);
-          cairo_move_to(cr, x1, y1);
-          cairo_line_to(cr, x2, y2);
-          cairo_stroke(cr);
+          vp->drawLine(l1->getCoords(), cr);
           gtk_widget_queue_draw (window_widget);
           // -----------------------------
           break;
@@ -168,8 +169,8 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           //draw in the drawing_area
           cairo_t *cr;
           cr = cairo_create (surface);
-          cairo_arc(cr, x, y, 1.0, 0.0, (2*PI) );
-          cairo_stroke(cr);
+          vp->drawPoint(point->getCoords(), cr);
+
           gtk_widget_queue_draw (window_widget);
           // ------------------------
           break;
@@ -198,9 +199,6 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
             poly = new Polygon(name);
 
             gtk_tree_model_get(dgplg_model, &iterP, 0, &x, 1, &y, -1);
-            cairo_t *cr;
-            cr = cairo_create (surface);
-            cairo_move_to(cr, x, y);
             std::cout << x << ".\n";
             std::cout << y << ".\n";
             xI = x;
@@ -211,7 +209,6 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
             while(valid)
             {
                 gtk_tree_model_get(dgplg_model, &iterP, 0, &x, 1, &y, -1);
-                cairo_line_to(cr, x, y);
                 std::cout << x << ".\n";
                 std::cout << y << ".\n";
                 poly->addCoordinate(x,y);
@@ -219,8 +216,9 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
             }
 
             // draw in the drawing_area
-            cairo_line_to(cr, xI, yI);
-            cairo_stroke(cr);
+            cairo_t *cr;
+            cr = cairo_create (surface);
+            vp->drawPolygon(poly->getCoords(), cr);
             gtk_widget_queue_draw (window_widget);
             // =====================
 
@@ -246,6 +244,7 @@ int main(int argc, char *argv[]) {
 
     gtkBuilder = gtk_builder_new();
     gtk_builder_add_from_file(gtkBuilder, "window.glade", NULL);
+
 
     //TODO isolar widgets
     window_widget = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "main_window") );
@@ -286,8 +285,14 @@ int main(int argc, char *argv[]) {
 
     listStore = GTK_LIST_STORE( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "liststore_displayf"));
 
+    GtkRequisition min, max;
+    gtk_widget_get_preferred_size(drawing_area, &min, &max);
+    cout << min.width << endl;
+    cout << min.height << endl;
+    cout << max.width << endl;
+    cout << max.height << endl;
 
-
+    vp = new ViewPort(min.width, min.height);
 
 
     g_signal_connect (drawing_area, "draw", G_CALLBACK (redraw), NULL);
