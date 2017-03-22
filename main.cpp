@@ -285,12 +285,17 @@ int main(int argc, char *argv[]) {
 
     listStore = GTK_LIST_STORE( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "liststore_displayf"));
 
-    GtkRequisition min, max;
+    GtkRequisition min, max, minW, maxW;
     gtk_widget_get_preferred_size(drawing_area, &min, &max);
     cout << min.width << endl;
     cout << min.height << endl;
     cout << max.width << endl;
     cout << max.height << endl;
+    gtk_widget_get_preferred_size(window_widget, &minW, &maxW);
+    cout << minW.width << endl;
+    cout << minW.height << endl;
+    cout << maxW.width << endl;
+    cout << maxW.height << endl;
 
     vp = new ViewPort(min.width, min.height);
 
