@@ -176,6 +176,11 @@ extern "C" G_MODULE_EXPORT void btn_line_clicked(){
 }
 
 extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
+   double a[1][2], b[2][2], r[1][2];
+   a[0][0] = 2.0; a[0][1] = 2.0;
+   b[0][0] = 1.0; b[0][1] = 2.0; b[1][0] = 1.0; b[1][1] = 2.0;
+   ObjectManipulation::matrix_multiplication<1,2,2,2>(a, b, r);
+   std::cout << "Result: " << r[0][0] << ", " << r[0][1] << endl;
    double x, y;
    string name;
    Point *point;
@@ -234,8 +239,6 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
             poly = new Polygon(name);
 
             gtk_tree_model_get(dgplg_model, &iterP, 0, &x, 1, &y, -1);
-            std::cout << x << ".\n";
-            std::cout << y << ".\n";
             xI = x;
             yI = y;
             poly->addCoordinate(x,y);
@@ -244,8 +247,8 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
             while(valid)
             {
                 gtk_tree_model_get(dgplg_model, &iterP, 0, &x, 1, &y, -1);
-                std::cout << x << ".\n";
-                std::cout << y << ".\n";
+
+
                 poly->addCoordinate(x,y);
                 valid = gtk_tree_model_iter_next(dgplg_model, &iterP);
             }
@@ -322,15 +325,7 @@ int main(int argc, char *argv[]) {
 
     GtkRequisition min, max, minW, maxW;
     gtk_widget_get_preferred_size(drawing_area, &min, &max);
-    cout << min.width << endl;
-    cout << min.height << endl;
-    cout << max.width << endl;
-    cout << max.height << endl;
     gtk_widget_get_preferred_size(window_widget, &minW, &maxW);
-    cout << minW.width << endl;
-    cout << minW.height << endl;
-    cout << maxW.width << endl;
-    cout << maxW.height << endl;
 
     vp = new ViewPort(min.width, min.height);
 
