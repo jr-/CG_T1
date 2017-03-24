@@ -176,11 +176,12 @@ extern "C" G_MODULE_EXPORT void btn_line_clicked(){
 }
 
 extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
-   double a[1][2], b[2][2], r[1][2];
-   a[0][0] = 2.0; a[0][1] = 2.0;
-   b[0][0] = 1.0; b[0][1] = 2.0; b[1][0] = 1.0; b[1][1] = 2.0;
-   ObjectManipulation::matrix_multiplication<1,2,2,2>(a, b, r);
-   std::cout << "Result: " << r[0][0] << ", " << r[0][1] << endl;
+  //  double a[1][2], b[2][2], r[1][2];
+  //  a[0][0] = 2.0; a[0][1] = 2.0;
+  //  b[0][0] = 1.0; b[0][1] = 2.0; b[1][0] = 1.0; b[1][1] = 2.0;
+  //  ObjectManipulation::_matrix_multiplication<1,2,2,2>(a, b, r);
+  //  std::cout << "Result: " << r[0][0] << ", " << r[0][1] << endl;
+  ObjectManipulation::_test_foo();
    double x, y;
    string name;
    Point *point;

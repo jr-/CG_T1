@@ -74,11 +74,16 @@ class Polygon: public Object {
 };
 
 namespace ObjectManipulation {
-
 enum RotationType { CENTER, ORIGIN, POINT };
 
+void translateObject(Object* o, Coordinate vect);
+void scaleObject(Object* o, Coordinate factor);
+void rotateObject(Object* o,  double angle, RotationType rt, Coordinate reference);
 template <int rows, int columns>
-void translateMatrix(Coordinate vect, double translate_matrix[rows][columns]){
+void _print_matrix(double matrix[rows][columns]);
+
+template <int rows, int columns>
+void _translate_matrix(Coordinate vect, double translate_matrix[rows][columns]){
   for(int i = 0; i < rows; i++)
     for (int j= 0; j < columns; j++){
       if (i == j)
@@ -86,12 +91,12 @@ void translateMatrix(Coordinate vect, double translate_matrix[rows][columns]){
       else
         translate_matrix[i][j] = 0;
     }
-    for(int i = 0; i < columns; i++)
+    for(int i = 0; i < columns-1; i++)
       translate_matrix[rows-1][i] = vect[i];
 }
 
 template <int rows, int columns>
-void scaleMatrix(Coordinate factor, double scale_matrix[rows][columns]) {
+void _scale_matrix(Coordinate factor, double scale_matrix[rows][columns]) {
   for(int i = 0; i < rows; i++)
     for (int j = 0; j < columns; j++){
       if(i == j)
@@ -102,7 +107,7 @@ void scaleMatrix(Coordinate factor, double scale_matrix[rows][columns]) {
 }
 
 template <int rows, int columns>
-void rotateMatrix(int angle, double rotate_matrix[rows][columns]) {
+void _rotate_matrix(int angle, double rotate_matrix[rows][columns]) {
   for(int i = 0; i < rows; i++)
     for(int j = 0; j<columns; j++)
       rotate_matrix[i][j] = 0;
@@ -112,7 +117,7 @@ void rotateMatrix(int angle, double rotate_matrix[rows][columns]) {
 }
 
 template <int r1, int c1, int r2, int c2>
-void matrix_multiplication(double a[r1][c1], double b[r2][c2], double result[r1][c1]) {
+void _matrix_multiplication(double a[r1][c1], double b[r2][c2], double result[r1][c1]) {
   for(int i = 0; i < r1; i++)
     for(int j=0; j< c1; j++)
       result[i][j] = 0.0;
@@ -122,24 +127,68 @@ void matrix_multiplication(double a[r1][c1], double b[r2][c2], double result[r1]
         result[i][j] += a[i][k] * b[k][j];
 }
 
+void _translateToOrigin(Object* o) {
+  Coordinate center = o->getCenter();
+  center.set(-center.getX(), -center.getY());
+  translateObject(o, center);
+}
+
 void translateObject(Object* o, Coordinate vect) {
   vector<Coordinate> coords = o->getCoords();
-  double a[1][2]; double b[2][2]; double result[1][2];
-  translateMatrix<2,2>(vect, b);
+  double a[1][3]; double b[3][3]; double result[1][3];
+  _translate_matrix<3,3>(vect, b);
   for (Coordinate c: coords) {
-    a[0][0] = c.getX(); a[0][1] = c.getY();
-    matrix_multiplication<1,2,2,2>(a,b,result);
+    a[0][0] = c.getX(); a[0][1] = c.getY(); a[0][2] = 1;
+    _matrix_multiplication<1,3,3,3>(a, b, result);
     c.set(result[0][0], result[0][1]);
+    _print_matrix<1,3>(result);
+
   }
 }
 
 void scaleObject(Object* o, Coordinate factor) {
+  double a[1][3]; double b[3][3]; double result[1][3];
   Coordinate center = o->getCenter();
-  
+  cout << "center: " << center.getX() << ", " << center.getY() << endl;
+  vector<Coordinate> coords;
+  _translateToOrigin(o);
+  _scale_matrix<3,3>(factor, b);
+  coords = o->getCoords();
+  for (Coordinate c: coords) {
+    a[0][0] = c.getX(); a[0][1] = c.getY(); a[0][2] = 1;
+    _matrix_multiplication<1,3,3,3>(a,b, result);
+    c.set(result[0][0], result[0][1]);
+    // _print_matrix<1,3>(a);
+    // _print_matrix<1,3>(result);
+  }
+  translateObject(o, center);
 }
 
 void rotateObject(Object* o,  double angle, RotationType rt, Coordinate reference) {
 
+}
+
+void _test_foo() {
+Coordinate vect(50.0,50.0), factor(2.0,2.0);
+Line l("line1");
+l.addCoordinate(100.0, 100.0);
+l.addCoordinate(200.0, 200.0);
+
+// translateObject(&l, vect);
+
+scaleObject(&l, factor);
+}
+
+template <int rows, int columns>
+void _print_matrix(double matrix[rows][columns]) {
+  cout << "Matrix: " << endl;
+  for (int i = 0; i < rows; i++){
+    cout << "row " << i << " | ";
+   for (int j = 0; j <columns; j++){
+     cout << matrix[i][j] << " ";
+   }
+   cout << "|" << endl;
+ }
 }
 
 };
