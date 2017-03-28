@@ -2,11 +2,13 @@
 #include <vector>
 #include <math.h>
 using namespace std;
+extern const double PI;
 
 class Coordinate {
   public:
       Coordinate(double x, double y) : _x(x), _y(y) {
       }
+      Coordinate(Coordinate* c) { _x = c->_x; _y = c->_y;}
       double getX() const { return _x;}
       double getY() const { return _y;}
       void move(double x, double y) { _x += x; _y += y; }
@@ -76,9 +78,9 @@ class Polygon: public Object {
 namespace ObjectManipulation {
 enum RotationType { CENTER, ORIGIN, POINT };
 
-void translateObject(Object* o, Coordinate vect);
-void scaleObject(Object* o, Coordinate factor);
-void rotateObject(Object* o,  double angle, RotationType rt, Coordinate reference);
+void translateObject(Object& o, Coordinate vect);
+void scaleObject(Object& o, Coordinate factor);
+void rotateObject(Object& o,  double angle, RotationType rt, Coordinate reference);
 template <int rows, int columns>
 void _print_matrix(double matrix[rows][columns]);
 
@@ -107,9 +109,10 @@ void _scale_matrix(Coordinate factor, double scale_matrix[rows][columns]) {
 }
 
 template <int rows, int columns>
-void _rotate_matrix(int angle, double rotate_matrix[rows][columns]) {
+void _rotate_matrix(double angle, double rotate_matrix[rows][columns]) {
+  angle = (angle * PI / 180);
   for(int i = 0; i < rows; i++)
-    for(int j = 0; j<columns; j++)
+    for(int j = 0; j < columns; j++)
       rotate_matrix[i][j] = 0;
   rotate_matrix[rows-1][columns-1] = 1;
   rotate_matrix[0][0] = cos(angle); rotate_matrix[1][1] = rotate_matrix[0][0];
@@ -127,61 +130,98 @@ void _matrix_multiplication(double a[r1][c1], double b[r2][c2], double result[r1
         result[i][j] += a[i][k] * b[k][j];
 }
 
-void _translateToOrigin(Object* o) {
-  Coordinate center = o->getCenter();
+void _translateToOrigin(Object& o) {
+  Coordinate center = o.getCenter();
   center.set(-center.getX(), -center.getY());
   translateObject(o, center);
 }
 
-void translateObject(Object* o, Coordinate vect) {
-  vector<Coordinate> coords = o->getCoords();
+void translateObject(Object& o, Coordinate vect) {
+  vector<Coordinate> coords = o.getCoords();
   double a[1][3]; double b[3][3]; double result[1][3];
   _translate_matrix<3,3>(vect, b);
   for (Coordinate c: coords) {
-    a[0][0] = c.getX(); a[0][1] = c.getY(); a[0][2] = 1;
+    a[0][0] = c[0]; a[0][1] = c[1]; a[0][2] = c[2];
     _matrix_multiplication<1,3,3,3>(a, b, result);
     c.set(result[0][0], result[0][1]);
-    _print_matrix<1,3>(result);
-
   }
 }
 
-void scaleObject(Object* o, Coordinate factor) {
+void scaleObject(Object& o, Coordinate factor) {
   double a[1][3]; double b[3][3]; double result[1][3];
-  Coordinate center = o->getCenter();
+  Coordinate center = o.getCenter();
   cout << "center: " << center.getX() << ", " << center.getY() << endl;
   vector<Coordinate> coords;
   _translateToOrigin(o);
   _scale_matrix<3,3>(factor, b);
-  coords = o->getCoords();
+  coords = o.getCoords();
   for (Coordinate c: coords) {
-    a[0][0] = c.getX(); a[0][1] = c.getY(); a[0][2] = 1;
+    a[0][0] = c[0]; a[0][1] = c[1]; a[0][2] = c[2];
     _matrix_multiplication<1,3,3,3>(a,b, result);
     c.set(result[0][0], result[0][1]);
-    // _print_matrix<1,3>(a);
-    // _print_matrix<1,3>(result);
   }
   translateObject(o, center);
 }
 
-void rotateObject(Object* o,  double angle, RotationType rt, Coordinate reference) {
+void rotateObject(Object& o,  int angle, RotationType rt, Coordinate reference) {
+  double a[1][3]; double b[3][3]; double result[1][3];
+  vector<Coordinate> coords;
+  Coordinate temp(&reference);
+  switch (rt) {
+    case ORIGIN:
+    reference.set(0.0,0.0);
+    break;
+    case POINT:
+    temp.set(-temp.getX(), -temp.getY());
+    translateObject(o, temp);
+    break;
+    case CENTER:
+    reference = o.getCenter();
+    _translateToOrigin(o);
+    break;
+    default:
+    cout << "Warning: default rotation entered!" << endl;
+    return;
+  }
+  _rotate_matrix<3,3>(angle, b);
+  coords = o.getCoords();
+  vector<Coordinate>::iterator it;
+  for(it = coords.begin(); it != coords.end(); ++it) {
+    a[0][0] = (*it)[0]; a[0][1] = (*it)[1]; a[0][2] = (*it)[2];
+    _matrix_multiplication<1,3,3,3>(a, b, result);
+    it->set(result[0][0], result[0][1]);
+    cout << "Coord aft rtt: "<< it->getX() << ", "<< it->getY() << endl;
 
+    _print_matrix<1,3>(result);
+  }
+  translateObject(o, reference);
 }
 
 void _test_foo() {
 Coordinate vect(50.0,50.0), factor(2.0,2.0);
 Line l("line1");
-l.addCoordinate(100.0, 100.0);
-l.addCoordinate(200.0, 200.0);
+l.addCoordinate(0.0, 0.0);
+l.addCoordinate(0.0, 100.0);
 
-// translateObject(&l, vect);
+for(Coordinate c: l.getCoords()){
 
-scaleObject(&l, factor);
+  cout << "coordinate before manipulation: " << c[0] << ", " << c[1] << endl;
+}
+
+// translateObject(l, vect);
+
+// scaleObject(&l, factor);
+
+rotateObject(l, 90, CENTER, Coordinate(0,0));
+
+for(Coordinate c: l.getCoords()){
+  cout << "coordinate after manipulation: " << c[0] << ", " << c[1] << endl;
+}
+
 }
 
 template <int rows, int columns>
 void _print_matrix(double matrix[rows][columns]) {
-  cout << "Matrix: " << endl;
   for (int i = 0; i < rows; i++){
     cout << "row " << i << " | ";
    for (int j = 0; j <columns; j++){

@@ -4,9 +4,11 @@
 #include <string>
 #include "Object.hpp"
 #include "ViewPort.hpp" //apenas para teste
+
 static cairo_surface_t *surface = NULL;
 using namespace std;
 
+const double PI = 3.1415926535897932384626433832795;
 double sx, sy;
 ViewPort *vp;
 vector<Object> displayfile;

@@ -1,5 +1,6 @@
 #include "Window.hpp"
-#define PI 3.1415926535897932384626433832795
+extern const double PI;
+
 class ViewPort {
 public:
     ViewPort(double width, double height) : _window(width,height), _width(width), _height(height) {}
