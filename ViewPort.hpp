@@ -27,15 +27,9 @@ vector<Coordinate> ViewPort::transformObject(vector<Coordinate> coords) {
     Coordinate cmax = _window.getUpperRightCoord();
     xmin = cmin.getX(); xmax = cmax.getX();
     ymin = cmin.getY(); ymax = cmax.getY();
-
-    // cout << "Wxmin: " << xmin << " Wxmax: " << xmax << endl;
-    // cout << "Wymin: " << ymin << " Wymax: " << ymax << endl;
-
     for (Coordinate c : coords){
-        // cout << "Init Coords: (" << c.getX() <<","<< c.getY()<<")" << '\n';
         xvp = (c.getX() - xmin) / (xmax - xmin) * (_width);
         yvp = (1 - (c.getY() - ymin)/(ymax - ymin)) * (_height);
-        // cout << "Transformed Coords: (" << xvp <<","<< yvp<<")" << endl;
         coords_vp.push_back(Coordinate(xvp, yvp));
     }
 
@@ -64,8 +58,6 @@ void ViewPort::drawObjects(vector<Object> displayfile, cairo_t *cr){
 
 void ViewPort::drawPoint(vector<Coordinate> cs, cairo_t *cr) {
     vector<Coordinate> coords = transformObject(cs);
-    // cout << coords[0].getX() << endl;
-    // cout << coords[0].getY() << endl;
     cairo_arc(cr, coords[0].getX(), coords[0].getY(), 1.0, 0.0, (2*PI) );
     cairo_stroke(cr);
 }
@@ -79,7 +71,6 @@ void ViewPort::drawLine(vector<Coordinate> c, cairo_t *cr) {
 
 void ViewPort::drawPolygon(vector<Coordinate> c, cairo_t *cr) {
     vector<Coordinate> coords = transformObject(c);
-
     cairo_move_to(cr, coords[0].getX(), coords[0].getY());
     for(int i = 1; i < coords.size(); i++) {
       cairo_line_to(cr, coords[i].getX(), coords[i].getY());
