@@ -2,11 +2,13 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "Object.hpp"
+#include "Object.h"
 #include "ViewPort.hpp" //apenas para teste
+
 static cairo_surface_t *surface = NULL;
 using namespace std;
 
+const double PI = 3.1415926535897932384626433832795;
 double sx, sy;
 ViewPort *vp;
 vector<Object> displayfile;
@@ -234,8 +236,6 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
             poly = new Polygon(name);
 
             gtk_tree_model_get(dgplg_model, &iterP, 0, &x, 1, &y, -1);
-            std::cout << x << ".\n";
-            std::cout << y << ".\n";
             xI = x;
             yI = y;
             poly->addCoordinate(x,y);
@@ -244,8 +244,8 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
             while(valid)
             {
                 gtk_tree_model_get(dgplg_model, &iterP, 0, &x, 1, &y, -1);
-                std::cout << x << ".\n";
-                std::cout << y << ".\n";
+
+
                 poly->addCoordinate(x,y);
                 valid = gtk_tree_model_iter_next(dgplg_model, &iterP);
             }
@@ -322,15 +322,7 @@ int main(int argc, char *argv[]) {
 
     GtkRequisition min, max, minW, maxW;
     gtk_widget_get_preferred_size(drawing_area, &min, &max);
-    cout << min.width << endl;
-    cout << min.height << endl;
-    cout << max.width << endl;
-    cout << max.height << endl;
     gtk_widget_get_preferred_size(window_widget, &minW, &maxW);
-    cout << minW.width << endl;
-    cout << minW.height << endl;
-    cout << maxW.width << endl;
-    cout << maxW.height << endl;
 
     vp = new ViewPort(min.width, min.height);
 
