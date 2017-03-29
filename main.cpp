@@ -7,7 +7,6 @@
 
 static cairo_surface_t *surface = NULL;
 using namespace std;
-
 const double PI = 3.1415926535897932384626433832795;
 double sx, sy;
 ViewPort *vp;
@@ -15,10 +14,17 @@ vector<Object> displayfile;
 GtkBuilder  *gtkBuilder;
 GtkWidget *drawing_area;
 GtkWidget *window_widget;
-GtkWidget *dialog_pnt, *dialog_line;
+GtkWidget *dialog_pnt, *dialog_line, *dialog_rotate, *dialog_scale, *dialog_translate;
 GtkWidget *entryName_dgpnt, *entryX_dgpnt, *entryY_dgpnt;
 GtkWidget *entryName_dgline, *entryX1_dgline, *entryY1_dgline, *entryX2_dgline, *entryY2_dgline;
 GtkWidget *dialog_plg, *entryName_dgplg, *entryX_dgplg, *entryY_dgplg;
+GtkWidget *entryDX_dgtrans, *entryDY_dgtrans;
+//SCALE WIDGETS ---------
+GtkWidget *entrySX_dgscale, *entrySY_dgscale;
+//-----------------------
+//ROTATE WIDGETS ---------
+GtkWidget *entryPX_dgrotate, *entryPY_dgrotate, *entryAngle_dgrotate, *objCenter_dgrotate, *worldCenter_dgrotate, *pntCenter_dgrotate;
+//------------------------
 
 GtkTreeModel *displayfile_model;
 GtkTreeSelection *treeSelection;
@@ -61,6 +67,39 @@ static gboolean redraw (GtkWidget *widget, cairo_t   *cr,  gpointer   data){
   cairo_paint (cr);
 
   return FALSE;
+}
+
+Object::RotationType getRotationTypeByRotateDialog(){
+    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(objCenter_dgrotate)))
+      return Object::RotationType::CENTER;
+    else if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(worldCenter_dgrotate)))
+      return Object::RotationType::ORIGIN;
+    else
+      return Object::RotationType::POINT;
+}
+
+bool getSelectedObjectName(string &object_name){
+    if(!gtk_tree_selection_get_selected(GTK_TREE_SELECTION(treeSelection), NULL, NULL)) {
+        return false;
+    }
+    char *name;
+    GtkTreeIter iterr;
+    gtk_tree_selection_get_selected(GTK_TREE_SELECTION(treeSelection), NULL, &iterr);
+    gtk_tree_model_get(displayfile_model, &iterr, 0, &name, -1);
+    object_name = name;
+    delete name;
+    return true;
+}
+Object* getObjectByName(string object_name){
+    string c_name;
+    Object *found_object;
+    for(auto &obj : displayfile) {
+        c_name = obj.getName();
+        if(object_name.compare(c_name)) {
+            found_object = &obj;
+        }
+    }
+    return found_object;
 }
 
 //Callbacks
@@ -273,6 +312,96 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
     gtk_widget_hide(dialog_plg);
 }
 
+extern "C" G_MODULE_EXPORT void btn_translate_obj_clicked(){
+    string name_selected_obj;
+    bool hasObjectSelected = getSelectedObjectName(name_selected_obj);
+
+    //ONLY CALLS THE DIALOG IF AN OBJECT IS SELECTED IN THE DISPLAYFILE
+    if(hasObjectSelected) {
+        double dx, dy;
+        gint result = gtk_dialog_run (GTK_DIALOG (dialog_translate));
+        switch(result)
+        {
+            case GTK_RESPONSE_OK:
+                  dx = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryDX_dgtrans));
+                  dy = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryDY_dgtrans));
+              break;
+            default:
+              break;
+        }
+        gtk_widget_hide(dialog_translate);
+
+        cairo_t *cr;
+        cr = cairo_create (surface);
+        Object *selected_obj = getObjectByName(name_selected_obj);
+        clear_surface();
+        selected_obj->translate(Coordinate(dx,dy));
+        vp->drawObjects(displayfile, cr);
+        gtk_widget_queue_draw(window_widget);
+    }
+}
+
+extern "C" G_MODULE_EXPORT void btn_scale_obj_clicked(){
+    string name_selected_obj;
+    bool hasObjectSelected = getSelectedObjectName(name_selected_obj);
+
+    //ONLY CALLS THE DIALOG IF AN OBJECT IS SELECTED IN THE DISPLAYFILE
+    if(hasObjectSelected) {
+        double sx, sy;
+        gint result = gtk_dialog_run (GTK_DIALOG (dialog_scale));
+        switch(result)
+        {
+            case GTK_RESPONSE_OK:
+                  sx = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entrySX_dgscale));
+                  sy = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entrySY_dgscale));
+              break;
+            default:
+              break;
+        }
+        gtk_widget_hide(dialog_scale);
+
+        cairo_t *cr;
+        cr = cairo_create(surface);
+        Object *selected_obj = getObjectByName(name_selected_obj);
+        clear_surface();
+        selected_obj->scale(Coordinate(sx,sy));
+        vp->drawObjects(displayfile, cr);
+        gtk_widget_queue_draw(window_widget);
+
+    }
+}
+
+extern "C" G_MODULE_EXPORT void btn_rotate_obj_clicked(){
+    string selected_obj_name;
+    bool hasObjectSelected = getSelectedObjectName(selected_obj_name);
+    if(hasObjectSelected) {
+        double angle, px, py;
+        Object::RotationType r_type;
+        gint result = gtk_dialog_run (GTK_DIALOG (dialog_rotate));
+        switch(result)
+        {
+            case GTK_RESPONSE_OK:
+                angle = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryAngle_dgrotate));
+                px = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryPX_dgrotate));
+                py = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryPY_dgrotate));
+                r_type = getRotationTypeByRotateDialog();
+                break;
+            default:
+                break;
+        }
+        gtk_widget_hide(dialog_rotate);
+
+        cairo_t *cr;
+        cr = cairo_create (surface);
+        Object *selected_obj = getObjectByName(selected_obj_name);
+        clear_surface();
+        selected_obj->rotate(angle, r_type, Coordinate(px, py));
+        vp->drawObjects(displayfile, cr);
+        gtk_widget_queue_draw(window_widget);
+    }
+}
+
+
 
 int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
@@ -290,6 +419,9 @@ int main(int argc, char *argv[]) {
     dialog_pnt = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_pnt") );
     dialog_line = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_line") );
     dialog_plg = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_plg") );
+    dialog_translate = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_translate") );
+    dialog_scale = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_scale") );
+    dialog_rotate = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_rotate") );
     // --------------------
 
     //POINT WIDGETS ----
@@ -310,8 +442,25 @@ int main(int argc, char *argv[]) {
     entryName_dgplg = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "name_dgplg") );
     entryX_dgplg = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryx_dgplg") );
     entryY_dgplg = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryy_dgplg") );
-
     // -------------------
+
+    //TRANSLATE WIDGETS ----
+    entryDX_dgtrans = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entrydx_dgtrans") );
+    entryDY_dgtrans = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entrydy_dgtrans") );
+    // ---------------------
+    //SCALE WIDGETS ----
+    entrySX_dgscale = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entrysx_dgscale") );
+    entrySY_dgscale = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entrysy_dgscale") );
+    // -----------------
+    //ROTATE WIDGETS ----
+    entryPX_dgrotate = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entrypx_dgrotate") );
+    entryPY_dgrotate = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entrypy_dgrotate") );
+    entryAngle_dgrotate = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryangle_dgrotate"));
+    objCenter_dgrotate = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "rb_rotate_obj") );
+    worldCenter_dgrotate = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "rb_rotate_world") );
+    pntCenter_dgrotate = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "rb_rotate_point") );
+    // ------------------
+
 
 
     GtkTreeView* tree = GTK_TREE_VIEW( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "treeview_displayf" ) );
@@ -320,9 +469,8 @@ int main(int argc, char *argv[]) {
 
     listStore = GTK_LIST_STORE( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "liststore_displayf"));
 
-    GtkRequisition min, max, minW, maxW;
-    gtk_widget_get_preferred_size(drawing_area, &min, &max);
-    gtk_widget_get_preferred_size(window_widget, &minW, &maxW);
+    GtkRequisition min;
+    gtk_widget_get_preferred_size(drawing_area, &min, NULL);
 
     vp = new ViewPort(min.width, min.height);
 

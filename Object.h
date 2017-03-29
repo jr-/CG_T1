@@ -8,13 +8,14 @@ extern const double PI;
 enum ObjectType { POINT, LINE, POLYGON };
 
 class Object {
-  enum RotationType { CENTER, ORIGIN, POINT };
+
   private:
        string _name;
        vector<Coordinate> _coords;
        ObjectType _type;
        Coordinate getCenter();
   public:
+    enum RotationType { CENTER, ORIGIN, POINT };
     Object(string name, ObjectType type) : _name(name), _type(type) {}
     virtual ~Object() {}
     string getName() const;
