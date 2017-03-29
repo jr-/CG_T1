@@ -13,7 +13,7 @@ Coordinate Object::getCenter() {
   return c;
 }
 
-string Object::getName() const {
+string Object::getName(){
   return _name;
 }
 
@@ -30,17 +30,27 @@ int Object::getSize() const {
 }
 
 void Object::addCoordinate(double x, double y) {
-  _coords.emplace_back(new Coordinate(x,y));
+    _coords.emplace_back(x, y);
 }
 
 void Object::translate(Coordinate vect) {
-  double a[1][3]; double b[3][3]; double result[1][3];
-  ObjectManipulationMatrix::translate_matrix<3,3>(vect, b);
-  for (Coordinate &c: _coords) {
-    a[0][0] = c[0]; a[0][1] = c[1]; a[0][2] = c[2];
-    ObjectManipulationMatrix::matrix_multiplication<1,3,3,3>(a, b, result);
-    c.set(result[0][0], result[0][1]);
-  }
+    //cout << _coords[0].getX() << "\n";
+    //cout << _coords[0][0] << "\n";
+    double a[1][3]; double b[3][3]; double result[1][3];
+    ObjectManipulationMatrix::translate_matrix<3,3>(vect, b);
+    //cout << "a233" << "\n";
+    for (Coordinate &c: _coords) {
+        //cout << c[0] << "\n";
+        a[0][0] = c[0];
+        //cout << "0" << "\n";
+        a[0][1] = c[1];
+        //cout << "1" << "\n";
+        a[0][2] = c[2];
+        //cout << "2" << "\n";
+        ObjectManipulationMatrix::matrix_multiplication<1,3,3,3>(a, b, result);
+        //cout << "a" << "\n";
+        c.set(result[0][0], result[0][1]);
+    }
 }
 
 void Object::scale(Coordinate factor) {

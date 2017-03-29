@@ -92,14 +92,12 @@ bool getSelectedObjectName(string &object_name){
 }
 Object* getObjectByName(string object_name){
     string c_name;
-    Object *found_object;
     for(auto &obj : displayfile) {
         c_name = obj.getName();
         if(object_name.compare(c_name)) {
-            found_object = &obj;
+            return &obj;
         }
     }
-    return found_object;
 }
 
 //Callbacks
@@ -233,7 +231,6 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           //CREATE OBJECT/model e add object to the displayfile
           point = new Point(name);
           point->addCoordinate(x,y);
-
           displayfile.push_back(*point);
           // ---------------------------
 
@@ -334,8 +331,12 @@ extern "C" G_MODULE_EXPORT void btn_translate_obj_clicked(){
         cairo_t *cr;
         cr = cairo_create (surface);
         Object *selected_obj = getObjectByName(name_selected_obj);
+        cout << selected_obj->getCoords()[0][0] << "\n";
+        cout << selected_obj->getCoords()[0].getY() << "\n";
+        cout << selected_obj->getType() << "\n";
+        cout << (*selected_obj).getName() << "\n";
         clear_surface();
-        selected_obj->translate(Coordinate(dx,dy));
+        //selected_obj.translate(Coordinate(dx,dy));
         vp->drawObjects(displayfile, cr);
         gtk_widget_queue_draw(window_widget);
     }
@@ -362,9 +363,9 @@ extern "C" G_MODULE_EXPORT void btn_scale_obj_clicked(){
 
         cairo_t *cr;
         cr = cairo_create(surface);
-        Object *selected_obj = getObjectByName(name_selected_obj);
+        //Object *selected_obj = getObjectByName(name_selected_obj);
         clear_surface();
-        selected_obj->scale(Coordinate(sx,sy));
+        //selected_obj->scale(Coordinate(sx,sy));
         vp->drawObjects(displayfile, cr);
         gtk_widget_queue_draw(window_widget);
 
@@ -393,15 +394,13 @@ extern "C" G_MODULE_EXPORT void btn_rotate_obj_clicked(){
 
         cairo_t *cr;
         cr = cairo_create (surface);
-        Object *selected_obj = getObjectByName(selected_obj_name);
+        //Object *selected_obj = getObjectByName(selected_obj_name);
         clear_surface();
-        selected_obj->rotate(angle, r_type, Coordinate(px, py));
+        //  selected_obj->rotate(angle, r_type, Coordinate(px, py));
         vp->drawObjects(displayfile, cr);
         gtk_widget_queue_draw(window_widget);
     }
 }
-
-
 
 int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);

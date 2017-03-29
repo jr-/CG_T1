@@ -2,6 +2,7 @@
 #include <vector>
 #include <math.h>
 #include "Coordinate.hpp"
+#include <iostream>
 using namespace std;
 extern const double PI;
 
@@ -18,7 +19,7 @@ class Object {
     enum RotationType { CENTER, ORIGIN, POINT };
     Object(string name, ObjectType type) : _name(name), _type(type) {}
     virtual ~Object() {}
-    string getName() const;
+    string getName();
     ObjectType getType() const;
     vector<Coordinate>& getCoords();
     int getSize() const;
