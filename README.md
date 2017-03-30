@@ -4,15 +4,15 @@ SGI - Sistema Gráfico Interativo
 Suportar as 3 transformações básicas e a rotação arbitrária em 2D. 
 
 --- Model ---
-Para tanto você vai criar uma rotina de transformação genérica, que aceita uma matriz de transformação em coordenadas homogêneas e um objeto qualquer para ser transformado e devolve este objeto após a aplicação da matriz. Esta rotina nada mais é do que uma forma extremamente simples de se implementar um engine gráfico. Para alimentar esta rotina você deve criar um conjunto de rotinas de “preparo” da matriz de transformação, que serão específicas para cada tranformação.
+Para tanto você vai criar uma rotina de transformação genérica, que aceita uma matriz de transformação em coordenadas homogêneas e um objeto qualquer para ser transformado e devolve este objeto após a aplicação da matriz. Esta rotina nada mais é do que uma forma extremamente simples de se implementar um engine gráfico. Para alimentar esta rotina você deve criar um conjunto de rotinas de “preparo” da matriz de transformação, que serão específicas para cada tranformação. - OK
 
 --- GUI - View ---
-Para poder aplicar uma transformação sobre um determinado objeto do mundo, você deve permitir ao usuário que selecione um dos objetos de seu mundo na lista de objetos, escolha a transformação que deseja aplicar e entre com os dados para esta transformação em uma interface para isso.
+Para poder aplicar uma transformação sobre um determinado objeto do mundo, você deve permitir ao usuário que selecione um dos objetos de seu mundo na lista de objetos, escolha a transformação que deseja aplicar e entre com os dados para esta transformação em uma interface para isso. - OK
 
 --- Math/Algorithms ---
 Implementar 5 transformações:
 
--Translações
+-Translações - OK(Testado)
 -Escalonamentos em torno do centro do objeto
 Rotações:
 -Em torno do centro do mundo
