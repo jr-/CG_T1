@@ -6,7 +6,7 @@
 using namespace std;
 extern const double PI;
 
-enum ObjectType { POINT, LINE, POLYGON };
+enum ObjectType { POINT, LINE, POLYGON, WINDOW };
 
 class Object {
 
@@ -26,7 +26,7 @@ class Object {
     void addCoordinate(double x, double y);
     void translate(Coordinate vect);
     void scale(Coordinate factor);
-    void rotate(double angle, RotationType rt, Coordinate reference=Coordinate(0.0,0.0));
+    virtual void rotate(double angle, RotationType rt, Coordinate reference=Coordinate(0.0,0.0));
 };
 
 class Point: public Object {
