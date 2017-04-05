@@ -20,11 +20,11 @@ private:
 
 void Window::zoom(double value) {
     // value = value;
-    std::cout << "Width: "<< _width << " Height: " << _height << '\n';
+    // std::cout << "Width: "<< _width << " Height: " << _height << '\n';
 
     bool max = _width + value > MAX_SIZE || _height + value > MAX_SIZE;
     bool min = _width + value < MIN_SIZE || _height + value < MIN_SIZE;
-    std::cout << max << " " << min << '\n';
+    // std::cout << max << " " << min << '\n';
     if (!min && !max){
         wll.move(value,value);
         wur.move(-value,-value);
