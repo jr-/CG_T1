@@ -4,6 +4,7 @@
 #include <string>
 #include "Object.h"
 #include "ViewPort.hpp" //apenas para teste
+#define ANGLE 20
 
 static cairo_surface_t *surface = NULL;
 using namespace std;
@@ -402,11 +403,23 @@ extern "C" G_MODULE_EXPORT void btn_rotate_obj_clicked(){
 }
 
 extern "C" G_MODULE_EXPORT void btn_rotate_right_clicked(){
+  cairo_t *cr;
+  cr = cairo_create (surface);
+  vp->rotate(-ANGLE);
+  clear_surface();
+  vp->drawObjects(displayfile, cr);
 
+  gtk_widget_queue_draw(window_widget);
 }
 
 extern "C" G_MODULE_EXPORT void btn_rotate_left_clicked(){
+  cairo_t *cr;
+  cr = cairo_create (surface);
+  vp->rotate(-ANGLE);
+  clear_surface();
+  vp->drawObjects(displayfile, cr);
 
+  gtk_widget_queue_draw(window_widget);
 }
 
 int main(int argc, char *argv[]) {
