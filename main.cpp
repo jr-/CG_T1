@@ -401,6 +401,14 @@ extern "C" G_MODULE_EXPORT void btn_rotate_obj_clicked(){
     }
 }
 
+extern "C" G_MODULE_EXPORT void btn_rotate_right_clicked(){
+
+}
+
+extern "C" G_MODULE_EXPORT void btn_rotate_left_clicked(){
+
+}
+
 int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
 
