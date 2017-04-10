@@ -2,6 +2,7 @@
 #include <vector>
 #include <math.h>
 #include "Coordinate.hpp"
+// #include "Window.hpp"
 #include <iostream>
 using namespace std;
 extern const double PI;
@@ -13,6 +14,7 @@ class Object {
   private:
        string _name;
        vector<Coordinate> _coords;
+       vector<Coordinate> _ncoords;
        ObjectType _type;
        Coordinate getCenter();
   public:
@@ -22,8 +24,10 @@ class Object {
     string getName();
     ObjectType getType() const;
     vector<Coordinate>& getCoords();
+    vector<Coordinate>& getNCoords();
     int getSize() const;
     void addCoordinate(double x, double y);
+    void updateNCoordinate(Window w);
     void translate(Coordinate vect);
     void scale(Coordinate factor);
     virtual void rotate(double angle, RotationType rt, Coordinate reference=Coordinate(0.0,0.0));

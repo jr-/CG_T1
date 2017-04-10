@@ -25,12 +25,20 @@ vector<Coordinate>& Object::getCoords() {
   return _coords;
 }
 
+vector<Coordinate>& Object::getNCoords() {
+  return _ncoords;
+}
+
 int Object::getSize() const {
   return _coords.size();
 }
 
 void Object::addCoordinate(double x, double y) {
-    _coords.emplace_back(x, y);
+  _coords.emplace_back(x, y);
+}
+
+void Object::updateNCoordinate(Window w){
+  //TODO
 }
 
 void Object::translate(Coordinate vect) {

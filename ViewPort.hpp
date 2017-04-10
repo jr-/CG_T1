@@ -1,4 +1,3 @@
-#include "Window.hpp"
 extern const double PI;
 
 class ViewPort {

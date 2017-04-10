@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "Object.h"
+#include "Window.hpp"
 #include "ViewPort.hpp" //apenas para teste
 #define ANGLE 20
 
