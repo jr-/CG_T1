@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <array>
 #include "Object.h"
 #include "Window.hpp"
 #include "ViewPort.hpp" //apenas para teste
@@ -37,7 +38,6 @@ GtkTreeIter iter;
 GtkListStore *listStore_dgplg;
 GtkTreeModel *dgplg_model;
 GtkTreeSelection *treeplgSelection;
-
 
 /*Clear the surface, removing the scribbles*/
 static void clear_surface (){
@@ -197,6 +197,7 @@ extern "C" G_MODULE_EXPORT void btn_line_clicked(){
           l1 = new Line(name);
           l1->addCoordinate(x1,y1);
           l1->addCoordinate(x2,y2);
+          //l1->updateNCoordinate(window->getSCNMatrix());
 
           displayfile.push_back(*l1);
           // -------------------------
@@ -238,7 +239,7 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           point = new Point(name);
           point->addCoordinate(x,y);
           displayfile.push_back(*point);
-          point->updateNCoordinate(window->getSCNMatrix());
+          //point->updateNCoordinate(window->getSCNMatrix());
           // ---------------------------
 
           //show in displayfile interface
@@ -292,6 +293,7 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
                 poly->addCoordinate(x,y);
                 valid = gtk_tree_model_iter_next(dgplg_model, &iterP);
             }
+            //poly->updateNCoordinate(window->getSCNMatrix());
 
             // draw in the drawing_area
             cairo_t *cr;
@@ -400,7 +402,7 @@ extern "C" G_MODULE_EXPORT void btn_rotate_obj_clicked(){
         Object *selected_obj = getObjectByName(selected_obj_name);
         clear_surface();
         selected_obj->rotate(angle, r_type, Coordinate(px, py));
-        selected_obj->updateNCoordinate(window->getSCNMatrix());
+        //selected_obj->updateNCoordinate(window->getSCNMatrix());
         vp->drawObjects(displayfile, cr);
         gtk_widget_queue_draw(window_widget);
     }
@@ -495,7 +497,8 @@ int main(int argc, char *argv[]) {
     GtkRequisition min;
     gtk_widget_get_preferred_size(drawing_area, &min, NULL);
 
-    vp = new ViewPort(min.width, min.height);
+    window = new Window(min.width, min.height);
+    vp = new ViewPort(window, min.width, min.height);
 
 
     g_signal_connect (drawing_area, "draw", G_CALLBACK (redraw), NULL);
@@ -509,9 +512,9 @@ int main(int argc, char *argv[]) {
 }
 
 void updateNCoordinates() {
-  double scn_matrix[3][3]; scn_matrix = window->getSCNMatrix();
-  for (Object &o:displayfile) {
-    o.updateNCoordinate(scn_matrix)
-  }
+  // double scn_matrix[3][3]; scn_matrix = window->getSCNMatrix();
+  // for (Object &o:displayfile) {
+  //   o.updateNCoordinate(scn_matrix);
+  // }
 
 }

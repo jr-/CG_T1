@@ -25,7 +25,7 @@ public:
     double getHeight() { return _height; }
     void reset();
     void update (int angle);
-    double** getSCNMatrix() { return _scn_matrix; };
+    //double[3][3] getSCNMatrix() { return _scn_matrix; };
     void rotate(double angle, RotationType rt=CENTER, Coordinate reference=Coordinate(0.0,0.0)) {
       Object::rotate(angle, rt, reference);
       update(angle);
@@ -35,7 +35,7 @@ private:
     void generateSCNMatrix();
     const double __init_width, __init_height;
     double _width, _height, diagonal_sin, diagonal_cos;
-    double _scn_matrix[3][3];
+    double[3][3] _scn_matrix;
     int _angle;
     Coordinate _wc;
 };

@@ -2,19 +2,19 @@ extern const double PI;
 
 class ViewPort {
 public:
-    ViewPort(double width, double height) : _window(width,height), _width(width), _height(height) {}
+    ViewPort(Window* window, double width, double height) : _window(window), _width(width), _height(height) {}
     ~ViewPort() {}
     vector<Coordinate> transformObject(vector<Coordinate>);
     void drawObjects(vector<Object>, cairo_t *cr);
     void drawPoint(vector<Coordinate> coords, cairo_t *cr);
     void drawLine(vector<Coordinate> coords, cairo_t *cr);
     void drawPolygon(vector<Coordinate> coords, cairo_t *cr);
-    void move(double x, double y) { _window.move(x,y); }
-    void zoom(double value) { _window.zoom(value); }
-    void rotate(int angle) { _window.rotate(angle); }
+    void move(double x, double y) { _window->move(x,y); }
+    void zoom(double value) { _window->zoom(value); }
+    void rotate(int angle) { _window->rotate(angle); }
 
 private:
-    Window _window;
+    Window* _window;
     double _width, _height;
 
 };
@@ -24,8 +24,8 @@ vector<Coordinate> ViewPort::transformObject(vector<Coordinate> coords) {
     double xvp, yvp;
     double xmin, xmax, ymin, ymax;
     vector<Coordinate> coords_vp;
-    Coordinate cmin = _window.getLowerLeftCoord();
-    Coordinate cmax = _window.getUpperRightCoord();
+    Coordinate cmin = _window->getLowerLeftCoord();
+    Coordinate cmax = _window->getUpperRightCoord();
     xmin = cmin.getX(); xmax = cmax.getX();
     ymin = cmin.getY(); ymax = cmax.getY();
     for (Coordinate c : coords){
