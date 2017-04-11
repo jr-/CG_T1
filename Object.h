@@ -6,6 +6,8 @@
 using namespace std;
 extern const double PI;
 
+class Matrix;
+
 enum ObjectType { POINT, LINE, POLYGON, WINDOW };
 class Window;
 class Object {
@@ -26,7 +28,8 @@ public:
   vector<Coordinate>& getNCoords();
   int getSize() const;
   void addCoordinate(double x, double y);
-  void updateNCoordinate(double scn_matrix[3][3]);
+  template<int rows, int columns>
+  void updateNCoordinate(Matrix<rows, columns> scn_matrix);
   void translate(Coordinate vect);
   void scale(Coordinate factor);
   virtual void rotate(double angle, RotationType rt, Coordinate reference=Coordinate(0.0,0.0));
@@ -50,49 +53,49 @@ class Polygon: public Object {
 namespace ObjectManipulationMatrix {
 
 template <int rows, int columns>
-void translate_matrix(Coordinate vect, double translate_matrix[rows][columns]){
+void translate_matrix(Coordinate vect, Matrix<rows, columns> translate_matrix){
   for(int i = 0; i < rows; i++)
     for (int j= 0; j < columns; j++){
       if (i == j)
-        translate_matrix[i][j] = 1;
+        translate_matrix(i,j) = 1;
       else
-        translate_matrix[i][j] = 0;
+        translate_matrix(i,j) = 0;
     }
     for(int i = 0; i < columns-1; i++)
-      translate_matrix[rows-1][i] = vect[i];
+      translate_matrix(rows-1,i) = vect[i];
 }
 
 template <int rows, int columns>
-void scale_matrix(Coordinate factor, double scale_matrix[rows][columns]) {
+void scale_matrix(Coordinate factor, Matrix<rows, columns> scale_matrix) {
   for(int i = 0; i < rows; i++)
     for (int j = 0; j < columns; j++){
       if(i == j)
-        scale_matrix[i][j] = factor[j];
+        scale_matrix(i,j) = factor[j];
       else
-        scale_matrix[i][j] = 0;
+        scale_matrix(i,j) = 0;
     }
 }
 
 template <int rows, int columns>
-void rotate_matrix(double angle, double rotate_matrix[rows][columns]) {
+void rotate_matrix(double angle, Matrix<rows,columns> rotate_matrix) {
   angle = (angle * PI / 180);
   for(int i = 0; i < rows; i++)
     for(int j = 0; j < columns; j++)
-      rotate_matrix[i][j] = 0;
-  rotate_matrix[rows-1][columns-1] = 1;
-  rotate_matrix[0][0] = cos(angle); rotate_matrix[1][1] = rotate_matrix[0][0];
-  rotate_matrix[1][0] = sin(angle); rotate_matrix[0][1] = -rotate_matrix[1][0];
+      rotate_matrix(i,j) = 0;
+  rotate_matrix(rows-1,columns-1) = 1;
+  rotate_matrix(0,0) = cos(angle); rotate_matrix(1,1) = rotate_matrix(0,0);
+  rotate_matrix(1,0) = sin(angle); rotate_matrix(0,1) = -rotate_matrix(1,0);
 }
 
 template <int r1, int c1, int r2, int c2>
-void matrix_multiplication(double a[r1][c1], double b[r2][c2], double result[r1][c1]) {
+void matrix_multiplication(Matrix<r1, c1> a, Matrix<r2, c2> b, Matrix<r1, c1> result) {
   for(int i = 0; i < r1; i++)
     for(int j=0; j< c1; j++)
-      result[i][j] = 0.0;
+      result(i,j) = 0.0;
   for(int i = 0; i < r1; i++)
     for(int j = 0; j < c2; j++)
       for (int k = 0; k<c1; k++)
-        result[i][j] += a[i][k] * b[k][j];
+        result(i,j) += a(i,k) * b(k,j);
 }
 
 };

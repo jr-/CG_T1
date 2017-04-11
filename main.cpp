@@ -3,9 +3,11 @@
 #include <vector>
 #include <string>
 #include <array>
+#include "Matrix.hpp"
 #include "Object.h"
 #include "Window.hpp"
 #include "ViewPort.hpp" //apenas para teste
+
 #define ANGLE 20
 
 static cairo_surface_t *surface = NULL;

@@ -25,7 +25,7 @@ public:
     double getHeight() { return _height; }
     void reset();
     void update (int angle);
-    //double[3][3] getSCNMatrix() { return _scn_matrix; };
+    //Matrix<3, 3> getSCNMatrix() { return _scn_matrix; };
     void rotate(double angle, RotationType rt=CENTER, Coordinate reference=Coordinate(0.0,0.0)) {
       Object::rotate(angle, rt, reference);
       update(angle);
@@ -35,7 +35,7 @@ private:
     void generateSCNMatrix();
     const double __init_width, __init_height;
     double _width, _height, diagonal_sin, diagonal_cos;
-    double[3][3] _scn_matrix;
+    Matrix<3, 3> _scn_matrix;
     int _angle;
     Coordinate _wc;
 };
@@ -76,7 +76,7 @@ void Window::generateSCNMatrix(){
   Coordinate temp(-_wc[0], -_wc[1]);
   // calculate scale factor for normalization
   Coordinate scale_factor(1.0/_width, 1.0/_height);
-  double rotate_matrix[3][3], scale_matrix[3][3], temp1_matrix[3][3], temp2_matrix[3][3];
+  Matrix<3, 3> rotate_matrix, scale_matrix, temp1_matrix, temp2_matrix;
   // temp1 holds translate to origin matrix
   ObjectManipulationMatrix::translate_matrix<3,3>(temp, temp1_matrix);
   // rotate matrix by _angle

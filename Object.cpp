@@ -37,47 +37,49 @@ void Object::addCoordinate(double x, double y) {
   _coords.emplace_back(x, y);
 }
 
-void Object::updateNCoordinate(double scn_matrix[3][3]){
+template<int rows, columns>
+void Object::updateNCoordinate(Matrix<rows, columns> scn_matrix){
   //TODO
   _ncoords.clear();
-  double a[1][3], result[1][3];
+  Matrix<1,3> a, result;
   for (Coordinate &c: _coords) {
-      a[0][0] = c[0]; a[0][1] = c[1]; a[0][2] = c[2];
+      a(0,0) = c[0]; a(0,1) = c[1]; a(0,2) = c[2];
       ObjectManipulationMatrix::matrix_multiplication<1,3,3,3>(a, scn_matrix, result);
-      _ncoords.emplace_back(result[0][0], result[0][1]);
+      _ncoords.emplace_back(result(0,0), result(0,1));
   }
 }
 
 void Object::translate(Coordinate vect) {
-    double a[1][3]; double b[3][3]; double result[1][3];
+    Matrix<1, 3> a, result;
+    Matrix<3, 3> b;
     ObjectManipulationMatrix::translate_matrix<3,3>(vect, b);
     for (Coordinate &c: _coords) {
-        a[0][0] = c[0];
-        a[0][1] = c[1];
-        a[0][2] = c[2];
+        a(0,0) = c[0]; a(0,1) = c[1]; a(0,2) = c[2];
         ObjectManipulationMatrix::matrix_multiplication<1,3,3,3>(a, b, result);
-        c.set(result[0][0], result[0][1]);
+        c.set(result(0,0), result(0,1));
     }
 }
 
 void Object::scale(Coordinate factor) {
-  double a[1][3]; double b[3][3]; double result[1][3];
+  Matrix<1, 3> a, result;
+  Matrix<3, 3> b;
   ObjectManipulationMatrix::scale_matrix<3,3>(factor, b);
   Coordinate center = getCenter();
   center.set(-center.getX(), -center.getY());
   translate(center);
 
   for (Coordinate &c: _coords) {
-    a[0][0] = c[0]; a[0][1] = c[1]; a[0][2] = c[2];
+    a(0,0) = c[0]; a(0,1) = c[1]; a(0,2) = c[2];
     ObjectManipulationMatrix::matrix_multiplication<1,3,3,3>(a,b, result);
-    c.set(result[0][0], result[0][1]);
+    c.set(result(0,0), result(0,1));
   }
   center.set(-center.getX(), -center.getY());
   translate(center);
 }
 
 void Object::rotate(double angle, RotationType rt, Coordinate reference) {
-  double a[1][3]; double b[3][3]; double result[1][3];
+  Matrix<1, 3> a, result;
+  Matrix<3, 3> b;
   ObjectManipulationMatrix::rotate_matrix<3,3>(angle, b);
   switch (rt) {
     case ORIGIN:
@@ -95,9 +97,9 @@ void Object::rotate(double angle, RotationType rt, Coordinate reference) {
   translate(reference);
   reference.set(-reference.getX(), -reference.getY());
   for (Coordinate &c:_coords) {
-    a[0][0] = c[0]; a[0][1] = c[1]; a[0][2] = c[2];
+    a(0,0) = c[0]; a(0,1) = c[1]; a(0,2) = c[2];
     ObjectManipulationMatrix::matrix_multiplication<1,3,3,3>(a, b, result);
-    c.set(result[0][0], result[0][1]);
+    c.set(result(0,0), result(0,1));
   }
   translate(reference);
 }
