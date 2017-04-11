@@ -12,6 +12,7 @@ using namespace std;
 const double PI = 3.1415926535897932384626433832795;
 double sx, sy;
 ViewPort *vp;
+Window *window;
 vector<Object> displayfile;
 GtkBuilder  *gtkBuilder;
 GtkWidget *drawing_area;
@@ -208,7 +209,7 @@ extern "C" G_MODULE_EXPORT void btn_line_clicked(){
           // draw in the drawing_area
           cairo_t *cr;
           cr = cairo_create (surface);
-          vp->drawLine(l1->getCoords(), cr);
+          vp->drawLine(l1->getNCoords(), cr);
           gtk_widget_queue_draw(window_widget);
           // -----------------------------
           break;
@@ -237,6 +238,7 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           point = new Point(name);
           point->addCoordinate(x,y);
           displayfile.push_back(*point);
+          point->updateNCoordinate(window->getSCNMatrix());
           // ---------------------------
 
           //show in displayfile interface
@@ -294,7 +296,7 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
             // draw in the drawing_area
             cairo_t *cr;
             cr = cairo_create (surface);
-            vp->drawPolygon(poly->getCoords(), cr);
+            vp->drawPolygon(poly->getNCoords(), cr);
             gtk_widget_queue_draw (window_widget);
             // =====================
 
@@ -398,6 +400,7 @@ extern "C" G_MODULE_EXPORT void btn_rotate_obj_clicked(){
         Object *selected_obj = getObjectByName(selected_obj_name);
         clear_surface();
         selected_obj->rotate(angle, r_type, Coordinate(px, py));
+        selected_obj->updateNCoordinate(window->getSCNMatrix());
         vp->drawObjects(displayfile, cr);
         gtk_widget_queue_draw(window_widget);
     }
@@ -503,4 +506,12 @@ int main(int argc, char *argv[]) {
 
     gtk_main ();
     return 0;
+}
+
+void updateNCoordinates() {
+  double scn_matrix[3][3]; scn_matrix = window->getSCNMatrix();
+  for (Object &o:displayfile) {
+    o.updateNCoordinate(scn_matrix)
+  }
+
 }

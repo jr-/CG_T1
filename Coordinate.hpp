@@ -1,5 +1,6 @@
 class Coordinate {
   public:
+      Coordinate() : _x(0), _y(0) {}
       Coordinate(double x, double y) : _x(x), _y(y) {
       }
       Coordinate(Coordinate* c) { _x = c->_x; _y = c->_y;}

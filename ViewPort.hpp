@@ -19,6 +19,7 @@ private:
 
 };
 
+// ViewPort transformation
 vector<Coordinate> ViewPort::transformObject(vector<Coordinate> coords) {
     double xvp, yvp;
     double xmin, xmax, ymin, ymax;
@@ -42,13 +43,13 @@ void ViewPort::drawObjects(vector<Object> displayfile, cairo_t *cr){
         ObjectType type = obj.getType();
         switch(type) {
             case ObjectType::POINT:
-                drawPoint(obj.getCoords(), cr);
+                drawPoint(obj.getNCoords(), cr);
                 break;
             case ObjectType::LINE:
-                drawLine(obj.getCoords(), cr);
+                drawLine(obj.getNCoords(), cr);
                 break;
             case ObjectType::POLYGON:
-                drawPolygon(obj.getCoords(), cr);
+                drawPolygon(obj.getNCoords(), cr);
                 break;
             default:
               break;

@@ -2,35 +2,34 @@
 #include <vector>
 #include <math.h>
 #include "Coordinate.hpp"
-// #include "Window.hpp"
 #include <iostream>
 using namespace std;
 extern const double PI;
 
 enum ObjectType { POINT, LINE, POLYGON, WINDOW };
-
+class Window;
 class Object {
-
-  private:
-       string _name;
-       vector<Coordinate> _coords;
-       vector<Coordinate> _ncoords;
-       ObjectType _type;
-       Coordinate getCenter();
-  public:
-    enum RotationType { CENTER, ORIGIN, POINT };
-    Object(string name, ObjectType type) : _name(name), _type(type) {}
-    virtual ~Object() {}
-    string getName();
-    ObjectType getType() const;
-    vector<Coordinate>& getCoords();
-    vector<Coordinate>& getNCoords();
-    int getSize() const;
-    void addCoordinate(double x, double y);
-    void updateNCoordinate(Window w);
-    void translate(Coordinate vect);
-    void scale(Coordinate factor);
-    virtual void rotate(double angle, RotationType rt, Coordinate reference=Coordinate(0.0,0.0));
+protected:
+  vector<Coordinate> _coords;
+  vector<Coordinate> _ncoords;
+  Coordinate getCenter();
+private:
+   string _name;
+   ObjectType _type;
+public:
+  enum RotationType { CENTER, ORIGIN, POINT };
+  Object(string name, ObjectType type) : _name(name), _type(type) {}
+  virtual ~Object() {}
+  string getName();
+  ObjectType getType() const;
+  vector<Coordinate>& getCoords();
+  vector<Coordinate>& getNCoords();
+  int getSize() const;
+  void addCoordinate(double x, double y);
+  void updateNCoordinate(double scn_matrix[3][3]);
+  void translate(Coordinate vect);
+  void scale(Coordinate factor);
+  virtual void rotate(double angle, RotationType rt, Coordinate reference=Coordinate(0.0,0.0));
 };
 
 class Point: public Object {

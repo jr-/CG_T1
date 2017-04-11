@@ -37,8 +37,15 @@ void Object::addCoordinate(double x, double y) {
   _coords.emplace_back(x, y);
 }
 
-void Object::updateNCoordinate(Window w){
+void Object::updateNCoordinate(double scn_matrix[3][3]){
   //TODO
+  _ncoords.clear();
+  double a[1][3], result[1][3];
+  for (Coordinate &c: _coords) {
+      a[0][0] = c[0]; a[0][1] = c[1]; a[0][2] = c[2];
+      ObjectManipulationMatrix::matrix_multiplication<1,3,3,3>(a, scn_matrix, result);
+      _ncoords.emplace_back(result[0][0], result[0][1]);
+  }
 }
 
 void Object::translate(Coordinate vect) {
