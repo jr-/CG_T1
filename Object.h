@@ -1,12 +1,11 @@
 #include <string>
 #include <vector>
 #include <math.h>
+#include "Matrix.hpp"
 #include "Coordinate.hpp"
 #include <iostream>
 using namespace std;
 extern const double PI;
-
-class Matrix;
 
 enum ObjectType { POINT, LINE, POLYGON, WINDOW };
 class Window;
@@ -28,8 +27,7 @@ public:
   vector<Coordinate>& getNCoords();
   int getSize() const;
   void addCoordinate(double x, double y);
-  template<int rows, int columns>
-  void updateNCoordinate(Matrix<rows, columns> scn_matrix);
+  void updateNCoordinate(Matrix scn_matrix);
   void translate(Coordinate vect);
   void scale(Coordinate factor);
   virtual void rotate(double angle, RotationType rt, Coordinate reference=Coordinate(0.0,0.0));
@@ -53,7 +51,7 @@ class Polygon: public Object {
 namespace ObjectManipulationMatrix {
 
 template <int rows, int columns>
-void translate_matrix(Coordinate vect, Matrix<rows, columns> translate_matrix){
+void translate_matrix(Coordinate vect, Matrix& translate_matrix){
   for(int i = 0; i < rows; i++)
     for (int j= 0; j < columns; j++){
       if (i == j)
@@ -66,7 +64,7 @@ void translate_matrix(Coordinate vect, Matrix<rows, columns> translate_matrix){
 }
 
 template <int rows, int columns>
-void scale_matrix(Coordinate factor, Matrix<rows, columns> scale_matrix) {
+void scale_matrix(Coordinate factor, Matrix& scale_matrix) {
   for(int i = 0; i < rows; i++)
     for (int j = 0; j < columns; j++){
       if(i == j)
@@ -77,7 +75,7 @@ void scale_matrix(Coordinate factor, Matrix<rows, columns> scale_matrix) {
 }
 
 template <int rows, int columns>
-void rotate_matrix(double angle, Matrix<rows,columns> rotate_matrix) {
+void rotate_matrix(double angle, Matrix& rotate_matrix) {
   angle = (angle * PI / 180);
   for(int i = 0; i < rows; i++)
     for(int j = 0; j < columns; j++)
@@ -88,14 +86,15 @@ void rotate_matrix(double angle, Matrix<rows,columns> rotate_matrix) {
 }
 
 template <int r1, int c1, int r2, int c2>
-void matrix_multiplication(Matrix<r1, c1> a, Matrix<r2, c2> b, Matrix<r1, c1> result) {
+void matrix_multiplication(Matrix a, Matrix b, Matrix& result) {
   for(int i = 0; i < r1; i++)
-    for(int j=0; j< c1; j++)
+    for(int j=0; j < c1; j++)
       result(i,j) = 0.0;
   for(int i = 0; i < r1; i++)
     for(int j = 0; j < c2; j++)
-      for (int k = 0; k<c1; k++)
+      for (int k = 0; k < c1; k++){
         result(i,j) += a(i,k) * b(k,j);
+      }
 }
 
 };

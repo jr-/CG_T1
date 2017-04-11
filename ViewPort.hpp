@@ -2,7 +2,7 @@ extern const double PI;
 
 class ViewPort {
 public:
-    ViewPort(Window* window, double width, double height) : _window(window), _width(width), _height(height) {}
+    ViewPort(Window* window, double width, double height) : _window(window), _width(width-10), _height(height-10) {}
     ~ViewPort() {}
     vector<Coordinate> transformObject(vector<Coordinate>);
     void drawObjects(vector<Object>, cairo_t *cr);
@@ -20,21 +20,21 @@ private:
 };
 
 // ViewPort transformation
-vector<Coordinate> ViewPort::transformObject(vector<Coordinate> coords) {
+vector<Coordinate> ViewPort::transformObject(vector<Coordinate>  ncoords) {
     double xvp, yvp;
     double xmin, xmax, ymin, ymax;
-    vector<Coordinate> coords_vp;
+    vector<Coordinate>  ncoords_vp;
     Coordinate cmin = _window->getLowerLeftCoord();
     Coordinate cmax = _window->getUpperRightCoord();
-    xmin = cmin.getX(); xmax = cmax.getX();
-    ymin = cmin.getY(); ymax = cmax.getY();
-    for (Coordinate c : coords){
-        xvp = (c.getX() - xmin) / (xmax - xmin) * (_width);
-        yvp = (1 - (c.getY() - ymin)/(ymax - ymin)) * (_height);
-        coords_vp.push_back(Coordinate(xvp, yvp));
+    xmin = cmin[0]; xmax = cmax[0];
+    ymin = cmin[1]; ymax = cmax[1];
+    for (Coordinate c :  ncoords){
+        xvp = (c[0] - xmin) / (xmax - xmin) * (_width - 10); //-10 margem
+        yvp = (1 - (c[1] - ymin)/(ymax - ymin)) * (_height - 10); //-10 margem
+         ncoords_vp.push_back(Coordinate(xvp, yvp));
     }
 
-    return coords_vp;
+    return  ncoords_vp;
 }
 
 void ViewPort::drawObjects(vector<Object> displayfile, cairo_t *cr){

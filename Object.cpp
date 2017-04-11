@@ -1,5 +1,6 @@
 #include "Object.h"
 
+
 Coordinate Object::getCenter() {
   int size = _coords.size();
   double average_x, average_y;
@@ -37,11 +38,10 @@ void Object::addCoordinate(double x, double y) {
   _coords.emplace_back(x, y);
 }
 
-template<int rows, columns>
-void Object::updateNCoordinate(Matrix<rows, columns> scn_matrix){
+void Object::updateNCoordinate(Matrix scn_matrix){
   //TODO
   _ncoords.clear();
-  Matrix<1,3> a, result;
+  Matrix a(1,3), result(1,3);
   for (Coordinate &c: _coords) {
       a(0,0) = c[0]; a(0,1) = c[1]; a(0,2) = c[2];
       ObjectManipulationMatrix::matrix_multiplication<1,3,3,3>(a, scn_matrix, result);
@@ -50,8 +50,7 @@ void Object::updateNCoordinate(Matrix<rows, columns> scn_matrix){
 }
 
 void Object::translate(Coordinate vect) {
-    Matrix<1, 3> a, result;
-    Matrix<3, 3> b;
+    Matrix a(1,3), result(1,3),  b(3,3);
     ObjectManipulationMatrix::translate_matrix<3,3>(vect, b);
     for (Coordinate &c: _coords) {
         a(0,0) = c[0]; a(0,1) = c[1]; a(0,2) = c[2];
@@ -61,8 +60,7 @@ void Object::translate(Coordinate vect) {
 }
 
 void Object::scale(Coordinate factor) {
-  Matrix<1, 3> a, result;
-  Matrix<3, 3> b;
+  Matrix a(1,3), result(1,3), b(3,3);
   ObjectManipulationMatrix::scale_matrix<3,3>(factor, b);
   Coordinate center = getCenter();
   center.set(-center.getX(), -center.getY());
@@ -78,8 +76,7 @@ void Object::scale(Coordinate factor) {
 }
 
 void Object::rotate(double angle, RotationType rt, Coordinate reference) {
-  Matrix<1, 3> a, result;
-  Matrix<3, 3> b;
+  Matrix a(1,3), result(1,3), b(3,3);
   ObjectManipulationMatrix::rotate_matrix<3,3>(angle, b);
   switch (rt) {
     case ORIGIN:

@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 #include <array>
-#include "Matrix.hpp"
 #include "Object.h"
 #include "Window.hpp"
 #include "ViewPort.hpp" //apenas para teste
@@ -199,7 +198,7 @@ extern "C" G_MODULE_EXPORT void btn_line_clicked(){
           l1 = new Line(name);
           l1->addCoordinate(x1,y1);
           l1->addCoordinate(x2,y2);
-          //l1->updateNCoordinate(window->getSCNMatrix());
+          l1->updateNCoordinate(window->getSCNMatrix());
 
           displayfile.push_back(*l1);
           // -------------------------
@@ -241,7 +240,7 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           point = new Point(name);
           point->addCoordinate(x,y);
           displayfile.push_back(*point);
-          //point->updateNCoordinate(window->getSCNMatrix());
+          point->updateNCoordinate(window->getSCNMatrix());
           // ---------------------------
 
           //show in displayfile interface
@@ -252,7 +251,7 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           //draw in the drawing_area
           cairo_t *cr;
           cr = cairo_create (surface);
-          vp->drawPoint(point->getCoords(), cr);
+          vp->drawPoint(point->getNCoords(), cr);
 
           gtk_widget_queue_draw(window_widget);
           // ------------------------
@@ -295,7 +294,7 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
                 poly->addCoordinate(x,y);
                 valid = gtk_tree_model_iter_next(dgplg_model, &iterP);
             }
-            //poly->updateNCoordinate(window->getSCNMatrix());
+            poly->updateNCoordinate(window->getSCNMatrix());
 
             // draw in the drawing_area
             cairo_t *cr;
@@ -344,6 +343,13 @@ extern "C" G_MODULE_EXPORT void btn_translate_obj_clicked(){
         Object *selected_obj = getObjectByName(name_selected_obj);
         clear_surface();
         selected_obj->translate(Coordinate(dx,dy));
+        selected_obj->updateNCoordinate(window->getSCNMatrix());
+        cout << "coords: " << endl;
+        for (Coordinate &c:selected_obj->getCoords())
+          cout << c[0] << ", " << c[1] << endl;
+        cout << "ncoords" << endl;
+        for (auto &c:selected_obj->getNCoords())
+          cout << c[0] << ", " << c[1] << endl;
         vp->drawObjects(displayfile, cr);
         gtk_widget_queue_draw(window_widget);
     }
@@ -404,7 +410,7 @@ extern "C" G_MODULE_EXPORT void btn_rotate_obj_clicked(){
         Object *selected_obj = getObjectByName(selected_obj_name);
         clear_surface();
         selected_obj->rotate(angle, r_type, Coordinate(px, py));
-        //selected_obj->updateNCoordinate(window->getSCNMatrix());
+        selected_obj->updateNCoordinate(window->getSCNMatrix());
         vp->drawObjects(displayfile, cr);
         gtk_widget_queue_draw(window_widget);
     }
@@ -514,9 +520,9 @@ int main(int argc, char *argv[]) {
 }
 
 void updateNCoordinates() {
-  // double scn_matrix[3][3]; scn_matrix = window->getSCNMatrix();
-  // for (Object &o:displayfile) {
-  //   o.updateNCoordinate(scn_matrix);
-  // }
+  Matrix scn_matrix = window->getSCNMatrix();
+  for (Object &o:displayfile) {
+    o.updateNCoordinate(scn_matrix);
+  }
 
 }
