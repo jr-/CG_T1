@@ -2,7 +2,6 @@
 #include <iostream>
 // template<int rows, int columns>
 
-
 class Matrix {
 public:
   Matrix(int rows, int columns) : _rows(rows), _columns(columns), _size(rows*columns) {
@@ -16,14 +15,14 @@ public:
     return _elements.at((column + (row * _columns)));
   }
 
-  void print() {
-    for (int i=0; i<_rows; i++){
-      for (int j=0; j< _columns; j++){
-        std::cout << _elements.at((j + (i* _columns))) << " ";
-      }
-    std::cout << std::endl;
-    }
-  }
+  // void print() {
+  //   for (int i=0; i<_rows; i++){
+  //     for (int j=0; j< _columns; j++){
+  //       std::cout << _elements.at((j + (i* _columns))) << " ";
+  //     }
+  //   std::cout << std::endl;
+  //   }
+  // }
 
   std::vector<double> _elements;
   int _rows, _columns, _size;

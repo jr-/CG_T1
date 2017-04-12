@@ -7,7 +7,7 @@
 #include "Window.hpp"
 #include "ViewPort.hpp" //apenas para teste
 
-#define ANGLE 20
+#define ANGLE 45
 
 static cairo_surface_t *surface = NULL;
 using namespace std;
@@ -39,6 +39,8 @@ GtkTreeIter iter;
 GtkListStore *listStore_dgplg;
 GtkTreeModel *dgplg_model;
 GtkTreeSelection *treeplgSelection;
+
+void updateNCoordinates();
 
 /*Clear the surface, removing the scribbles*/
 static void clear_surface (){
@@ -124,7 +126,8 @@ extern "C" G_MODULE_EXPORT void btn_add_coord_plg_clicked(){
 }
 
 extern "C" G_MODULE_EXPORT void btn_moveto_right_clicked(){
-    vp->move(10.0, 0.0);
+    window->move(10.0, 0.0);
+    updateNCoordinates();
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
@@ -133,7 +136,8 @@ extern "C" G_MODULE_EXPORT void btn_moveto_right_clicked(){
 }
 
 extern "C" G_MODULE_EXPORT void btn_moveto_down_clicked(){
-    vp->move(0.0, -10.0);
+    window->move(0.0, -10.0);
+    updateNCoordinates();
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
@@ -142,7 +146,8 @@ extern "C" G_MODULE_EXPORT void btn_moveto_down_clicked(){
 }
 
 extern "C" G_MODULE_EXPORT void btn_moveto_left_clicked(){
-    vp->move(-10.0, 0.0);
+    window->move(-10.0, 0.0);
+    updateNCoordinates();
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
@@ -151,7 +156,8 @@ extern "C" G_MODULE_EXPORT void btn_moveto_left_clicked(){
 }
 
 extern "C" G_MODULE_EXPORT void btn_moveto_up_clicked(){
-    vp->move(0.0, 10.0);
+    window->move(0.0, 10.0);
+    updateNCoordinates();
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
@@ -160,7 +166,8 @@ extern "C" G_MODULE_EXPORT void btn_moveto_up_clicked(){
 }
 
 extern "C" G_MODULE_EXPORT void btn_zoom_out_clicked(){
-    vp->zoom(-10.0);
+    window->zoom(-10.0);
+    updateNCoordinates();
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
@@ -169,7 +176,8 @@ extern "C" G_MODULE_EXPORT void btn_zoom_out_clicked(){
 }
 
 extern "C" G_MODULE_EXPORT void btn_zoom_in_clicked(){
-    vp->zoom(10.0);
+    window->zoom(10.0);
+    updateNCoordinates();
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
@@ -241,7 +249,6 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           point->addCoordinate(x,y);
           displayfile.push_back(*point);
           point->updateNCoordinate(window->getSCNMatrix());
-          point->print();
           // ---------------------------
 
           //show in displayfile interface
@@ -380,6 +387,7 @@ extern "C" G_MODULE_EXPORT void btn_scale_obj_clicked(){
         Object *selected_obj = getObjectByName(name_selected_obj);
         clear_surface();
         selected_obj->scale(Coordinate(sx,sy));
+        selected_obj->updateNCoordinate(window->getSCNMatrix());
         vp->drawObjects(displayfile, cr);
         gtk_widget_queue_draw(window_widget);
 
@@ -420,7 +428,8 @@ extern "C" G_MODULE_EXPORT void btn_rotate_obj_clicked(){
 extern "C" G_MODULE_EXPORT void btn_rotate_right_clicked(){
   cairo_t *cr;
   cr = cairo_create (surface);
-  vp->rotate(-ANGLE);
+  window->rotate(-ANGLE);
+  updateNCoordinates();
   clear_surface();
   vp->drawObjects(displayfile, cr);
 
@@ -430,7 +439,8 @@ extern "C" G_MODULE_EXPORT void btn_rotate_right_clicked(){
 extern "C" G_MODULE_EXPORT void btn_rotate_left_clicked(){
   cairo_t *cr;
   cr = cairo_create (surface);
-  vp->rotate(-ANGLE);
+  window->rotate(ANGLE);
+  updateNCoordinates();
   clear_surface();
   vp->drawObjects(displayfile, cr);
 

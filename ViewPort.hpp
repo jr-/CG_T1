@@ -9,9 +9,6 @@ public:
     void drawPoint(vector<Coordinate> coords, cairo_t *cr);
     void drawLine(vector<Coordinate> coords, cairo_t *cr);
     void drawPolygon(vector<Coordinate> coords, cairo_t *cr);
-    void move(double x, double y) { _window->move(x,y); }
-    void zoom(double value) { _window->zoom(value); }
-    void rotate(int angle) { _window->rotate(angle); }
 
 private:
     Window* _window;

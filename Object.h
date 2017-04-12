@@ -30,7 +30,7 @@ public:
   void updateNCoordinate(Matrix scn_matrix);
   void translate(Coordinate vect);
   void scale(Coordinate factor);
-  void print();
+  // void print();
   virtual void rotate(double angle, RotationType rt, Coordinate reference=Coordinate(0.0,0.0));
 };
 

@@ -16,18 +16,17 @@ public:
       generateSCNMatrix();
     }
     ~Window() {}
-
-    void move(double x, double y) { _coords[0].move(x,y); _coords[1].move(x,y); };
+    void update (int angle=0);
+    void move(double x, double y) { _coords[0].move(x,y); _coords[1].move(x,y); update(); };
     void zoom(double value);
     Coordinate getLowerLeftCoord() { return _ncoords[0]; }
     Coordinate getUpperRightCoord() { return _ncoords[1]; }
     double getWidth() { return _width; }
     double getHeight() { return _height; }
     void reset();
-    void update (int angle);
     Matrix getSCNMatrix() { return _scn_matrix; };
     void rotate(double angle, RotationType rt=CENTER, Coordinate reference=Coordinate(0.0,0.0)) {
-      Object::rotate(angle, rt, reference);
+      // Object::rotate(angle, rt, reference);
       update(angle);
     }
 
@@ -57,7 +56,7 @@ void Window::reset() {
   generateSCNMatrix();
 }
 
-void Window::update(int angle=0){
+void Window::update(int angle){
   // width and height update
   Coordinate wll = _coords[0];
   Coordinate wur = _coords[1];
@@ -75,7 +74,9 @@ void Window::generateSCNMatrix(){
   // scn matrix update
   Coordinate temp(-_wc[0], -_wc[1]);
   // calculate scale factor for normalization
-  Coordinate scale_factor(1.0/_width, 1.0/_height);
+  double nwidth = _ncoords[1][0] - _ncoords[0][0];
+  double nheight = _ncoords[1][1] - _ncoords[0][1];
+  Coordinate scale_factor(nwidth/_width, nheight/_height);
   cout << "Scale factor: " << scale_factor[0] << "," << scale_factor[1] << endl;
   Matrix rotate_matrix(3, 3), scale_matrix(3, 3), temp1_matrix(3, 3), temp2_matrix(3, 3);
   // temp1 holds translate to origin matrix
@@ -89,9 +90,6 @@ void Window::generateSCNMatrix(){
   // multiply translate+rotate matrix(temp2) by scale_matrix generating translate+rotate+scale matrix (on temp1)
   ObjectManipulationMatrix::matrix_multiplication<3,3,3,3>(temp2_matrix, scale_matrix, _scn_matrix);
 
-  cout << "----------------" << endl;
-  _scn_matrix.print();
-  cout << "----------------" << endl;
 }
 
 void Window::zoom(double value) {
