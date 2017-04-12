@@ -241,6 +241,7 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           point->addCoordinate(x,y);
           displayfile.push_back(*point);
           point->updateNCoordinate(window->getSCNMatrix());
+          point->print();
           // ---------------------------
 
           //show in displayfile interface

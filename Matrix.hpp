@@ -16,24 +16,13 @@ public:
     return _elements.at((column + (row * _columns)));
   }
 
-  std::string toString() {
-    std::string s;
-    std::ostringstream strs;
-    strs << _size;
-    s = " Matrix size: " + strs.str() + "\n";
-    strs.str("");
+  void print() {
     for (int i=0; i<_rows; i++){
-      s += "|";
       for (int j=0; j< _columns; j++){
-        s += " ";
-        strs << _elements.at((j + (i* _columns)));
-        s += strs.str();
-        strs.str("");
-        s += " ";
+        std::cout << _elements.at((j + (i* _columns))) << " ";
       }
-      s += "|\n";
+    std::cout << std::endl;
     }
-    return s;
   }
 
   std::vector<double> _elements;

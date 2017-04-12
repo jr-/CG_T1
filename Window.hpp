@@ -87,12 +87,11 @@ void Window::generateSCNMatrix(){
   // generate scale_matrix
   ObjectManipulationMatrix::scale_matrix<3,3>(scale_factor, scale_matrix);
   // multiply translate+rotate matrix(temp2) by scale_matrix generating translate+rotate+scale matrix (on temp1)
-  ObjectManipulationMatrix::matrix_multiplication<3,3,3,3>(temp2_matrix, scale_matrix, temp1_matrix);
-  // temp2 holds translate back to place matrix
-  ObjectManipulationMatrix::translate_matrix<3,3>(_wc, temp2_matrix);
-  // multiply translate+rotate+scale matrix(temp1) by translate back matrix(temp2) generating final _scn_matrix
-  ObjectManipulationMatrix::matrix_multiplication<3,3,3,3>(temp1_matrix, temp2_matrix, _scn_matrix);
+  ObjectManipulationMatrix::matrix_multiplication<3,3,3,3>(temp2_matrix, scale_matrix, _scn_matrix);
 
+  cout << "----------------" << endl;
+  _scn_matrix.print();
+  cout << "----------------" << endl;
 }
 
 void Window::zoom(double value) {
