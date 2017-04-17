@@ -49,6 +49,7 @@ class Polygon: public Object {
     Polygon(string name) : Object(name, ObjectType::POLYGON) {}
 };
 
+
 namespace ObjectManipulationMatrix {
 
 template <int rows, int columns>

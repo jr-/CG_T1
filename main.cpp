@@ -14,6 +14,7 @@ using namespace std;
 const double PI = 3.1415926535897932384626433832795;
 double sx, sy;
 ViewPort *vp;
+Polygon *vp_border;
 Window *window;
 vector<Object> displayfile;
 GtkBuilder  *gtkBuilder;
@@ -517,7 +518,20 @@ int main(int argc, char *argv[]) {
     gtk_widget_get_preferred_size(drawing_area, &min, NULL);
 
     window = new Window(min.width, min.height);
+    // vp_border = new Polygon("BorderViewPort");
+    // vp_border->addCoordinate(9,9);
+    // vp_border->addCoordinate(9,491);
+    // vp_border->addCoordinate(491,491);
+    // vp_border->addCoordinate(491,9);
+    // vp_border->updateNCoordinate(window->getSCNMatrix());
     vp = new ViewPort(window, min.width, min.height);
+    // cairo_t *cr;
+    //
+    // cr = cairo_create (surface);
+    // for (auto &c: vp_border->getNCoords())
+    //   cout << c[0] << "," << c[1] << endl;
+    // vp->drawPolygon(vp_border->getNCoords(), cr);
+    gtk_widget_queue_draw(window_widget);
 
 
     g_signal_connect (drawing_area, "draw", G_CALLBACK (redraw), NULL);
@@ -528,6 +542,10 @@ int main(int argc, char *argv[]) {
 
     gtk_main ();
     return 0;
+}
+
+void drawVP() {
+
 }
 
 void updateNCoordinates() {

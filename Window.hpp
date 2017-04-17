@@ -1,6 +1,11 @@
 #define MAX_SIZE 2000
 #define MIN_SIZE 10
 
+const unsigned short UP = 0b1000;
+const unsigned short DOWN = 0b0100;
+const unsigned short RIGHT = 0b0010;
+const unsigned short LEFT = 0b0001;
+
 class Window : Object {
 public:
     Window(double width, double height) : Object("Window", ObjectType::WINDOW), __init_width(width),
@@ -25,12 +30,16 @@ public:
     double getHeight() { return _height; }
     void reset();
     Matrix getSCNMatrix() { return _scn_matrix; };
+    vector<Object>* clipObjects(vector<Object> displayfile);
     void rotate(double angle, RotationType rt=CENTER, Coordinate reference=Coordinate(0.0,0.0)) {
       // Object::rotate(angle, rt, reference);
       update(angle);
     }
 
 private:
+    bool clipPoint(Object obj);
+    Object* clipLine(Object& obj);
+    bool clipPolygon(Object obj);
     void generateSCNMatrix();
     const double __init_width, __init_height;
     double _width, _height, diagonal_sin, diagonal_cos;
@@ -101,4 +110,96 @@ void Window::zoom(double value) {
         update();
     }
 
+}
+
+vector<Object>* Window::clipObjects(vector<Object> displayfile){
+  // 1:17:20 da video aula tem como fazer o displayfile
+      vector<Object>* clipped = new vector<Object>();
+      Object* o = nullptr;
+      for( auto &obj : displayfile) {
+          ObjectType type = obj.getType();
+          switch(type) {
+              case ObjectType::POINT:
+                  if(clipPoint(obj))
+                    clipped->push_back(obj);
+                  break;
+              case ObjectType::LINE:
+                  o = clipLine(obj);
+                  if(o != nullptr)
+                    clipped->push_back(*o);
+                  break;
+              case ObjectType::POLYGON:
+                if(clipPolygon(obj))
+                  clipped->push_back(obj);
+                  break;
+              default:
+                break;
+          }
+      }
+      return clipped;
+}
+
+bool Window::clipPoint(Object obj) {
+  for(auto &c:obj.getNCoords())
+    if ((c[0] < -.96 || c[0] > .96) && (c[1] < -.96 || c[1] > .96))
+    return false;
+  return true;
+}
+
+short computeRegion(Coordinate c){
+  short pos = 0;
+  if(c[0] < -.96)
+    pos = pos | LEFT;
+  else if(c[0] > .96)
+    pos = pos | RIGHT;
+  if (c[1] < -.96)
+    pos = pos | DOWN;
+  else if (c[1] > .96)
+    pos = pos | UP;
+  return pos;
+}
+
+Object* Window::clipLine(Object& obj){
+  // if (type == COHENSUTHERLAND)
+  Coordinate c0, c1;
+  c0 = obj.getCoords()[0];
+  c1 = obj.getCoords()[1];
+  unsigned short p1 = computeRegion(c0);
+  unsigned short p2 = computeRegion(c1);
+
+  if (!(p1 | p2))
+    return &obj;
+  else if (p1 & p2)
+    return nullptr;
+  double x, y;
+  unsigned short outside = p1 ? p1 : p2;
+
+  if (outside & UP) {
+			x = c0[0] + (c1[0] - c0[0]) * (1 - c0[1]) / (c1[1] - c0[1]);
+			y = 1;
+		} else if (outside & DOWN) {
+			x = c0[0] + (c1[0] - c0[0]) * (-1 - c0[1]) / (c1[1] - c0[1]);
+			y = -1;
+		} else if (outside & RIGHT) {
+      y = c0[1] + (c1[1] - c0[1]) * (1 - c0[0]) / (c1[0] - c0[0]);
+			x = 1;
+		} else if (outside & LEFT) {
+      y = c0[1] + (c1[1] - c0[1]) * (-1 - c0[0]) / (c1[0] - c0[0]);
+			x = -1;
+		}
+  Line* l = new Line(obj.getName());
+  if (outside == p1){
+    l->addCoordinate(c1[0], c1[1]);
+    l->addCoordinate(x, y);
+  }
+  else {
+    l->addCoordinate(c0[0],c0[1]);
+    l->addCoordinate(x, y);
+  }
+
+  return l;
+}
+
+bool Window::clipPolygon(Object obj){
+  return true;
 }
