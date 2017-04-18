@@ -14,17 +14,17 @@ Coordinate Object::getCenter() {
   return c;
 }
 
-// void Object::print() {
-//   cout << "Object:" << _type << " " << _name << endl;
-//   cout << "-------" << endl;
-//   for(auto &c : _coords) {
-//     cout << c[0] << "  " << c[1] << endl;
-//   }
-//   cout << "-------" << endl;
-//   for(auto &c : _ncoords) {
-//     cout << c[0] << "  " << c[1] << endl;
-//   }
-// }
+void Object::print() {
+  cout << "Object:" << _type << " " << _name << endl;
+  cout << "-------" << endl;
+  for(auto &c : _coords) {
+    cout << c[0] << "  " << c[1] << endl;
+  }
+  cout << "-------" << endl;
+  for(auto &c : _ncoords) {
+    cout << c[0] << "  " << c[1] << endl;
+  }
+}
 
 string Object::getName(){
   return _name;

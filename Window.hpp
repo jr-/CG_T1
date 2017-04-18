@@ -111,9 +111,9 @@ void Window::zoom(double value) {
     }
 
 }
-
+//1.4
 vector<Object>* Window::clipObjects(vector<Object> displayfile){
-  // 1:17:20 da video aula tem como fazer o displayfile
+  // 1.4 TODO 1:17:20 da video aula tem como fazer o displayfile
       vector<Object>* clipped = new vector<Object>();
       Object* o = nullptr;
       for( auto &obj : displayfile) {
@@ -140,9 +140,14 @@ vector<Object>* Window::clipObjects(vector<Object> displayfile){
 }
 
 bool Window::clipPoint(Object obj) {
-  for(auto &c:obj.getNCoords())
+  vector<Coordinate> ncoords = obj.getNCoords();
+  cout << "size" << ncoords.size() << endl;
+  for(auto &c:ncoords){
+    cout << c[0] << " " << c[1] << endl;
     if ((c[0] < -.96 || c[0] > .96) && (c[1] < -.96 || c[1] > .96))
-    return false;
+      return false;
+  }
+  cout << "here2" << endl;
   return true;
 }
 

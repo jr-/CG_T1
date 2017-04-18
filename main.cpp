@@ -42,6 +42,7 @@ GtkTreeModel *dgplg_model;
 GtkTreeSelection *treeplgSelection;
 
 void updateNCoordinates();
+void drawVP();
 
 /*Clear the surface, removing the scribbles*/
 static void clear_surface (){
@@ -132,7 +133,10 @@ extern "C" G_MODULE_EXPORT void btn_moveto_right_clicked(){
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
-    vp->drawObjects(displayfile, cr);
+    //1.4
+    vector<Object> *clippedDF = window->clipObjects(displayfile);
+    vp->drawObjects(*clippedDF, cr);
+    drawVP();
     gtk_widget_queue_draw(window_widget);
 }
 
@@ -142,7 +146,10 @@ extern "C" G_MODULE_EXPORT void btn_moveto_down_clicked(){
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
-    vp->drawObjects(displayfile, cr);
+    //1.4
+    vector<Object> *clippedDF = window->clipObjects(displayfile);
+    vp->drawObjects(*clippedDF, cr);
+    drawVP();
     gtk_widget_queue_draw(window_widget);
 }
 
@@ -152,7 +159,10 @@ extern "C" G_MODULE_EXPORT void btn_moveto_left_clicked(){
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
-    vp->drawObjects(displayfile, cr);
+    //1.4
+    vector<Object> *clippedDF = window->clipObjects(displayfile);
+    vp->drawObjects(*clippedDF, cr);
+    drawVP();
     gtk_widget_queue_draw(window_widget);
 }
 
@@ -162,7 +172,10 @@ extern "C" G_MODULE_EXPORT void btn_moveto_up_clicked(){
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
-    vp->drawObjects(displayfile, cr);
+    //1.4
+    vector<Object> *clippedDF = window->clipObjects(displayfile);
+    vp->drawObjects(*clippedDF, cr);
+    drawVP();
     gtk_widget_queue_draw(window_widget);
 }
 
@@ -172,7 +185,10 @@ extern "C" G_MODULE_EXPORT void btn_zoom_out_clicked(){
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
-    vp->drawObjects(displayfile, cr);
+    //1.4
+    vector<Object> *clippedDF = window->clipObjects(displayfile);
+    vp->drawObjects(*clippedDF, cr);
+    drawVP();
     gtk_widget_queue_draw(window_widget);
 }
 
@@ -182,7 +198,10 @@ extern "C" G_MODULE_EXPORT void btn_zoom_in_clicked(){
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
-    vp->drawObjects(displayfile, cr);
+    //1.4
+    vector<Object> *clippedDF = window->clipObjects(displayfile);
+    vp->drawObjects(*clippedDF, cr);
+    drawVP();
     gtk_widget_queue_draw(window_widget);
 }
 
@@ -191,6 +210,7 @@ extern "C" G_MODULE_EXPORT void btn_line_clicked(){
    double x1, y1, x2, y2;
    string name;
    Line *l1;
+   vector<Object> *clippedDF;
    gint result = gtk_dialog_run (GTK_DIALOG (dialog_line));
    switch (result)
      {
@@ -220,7 +240,11 @@ extern "C" G_MODULE_EXPORT void btn_line_clicked(){
           // draw in the drawing_area
           cairo_t *cr;
           cr = cairo_create (surface);
-          vp->drawLine(l1->getNCoords(), cr);
+          //1.4 TODO
+          //vp->drawLine(l1->getNCoords(), cr);
+          clippedDF = window->clipObjects(displayfile);
+          vp->drawObjects(*clippedDF, cr);
+          drawVP();
           gtk_widget_queue_draw(window_widget);
           // -----------------------------
           break;
@@ -235,6 +259,7 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
    double x, y;
    string name;
    Point *point;
+   vector<Object> *clippedDF;
    gint result = gtk_dialog_run (GTK_DIALOG (dialog_pnt));
    switch (result)
    {
@@ -248,8 +273,11 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           //CREATE OBJECT/model e add object to the displayfile
           point = new Point(name);
           point->addCoordinate(x,y);
-          displayfile.push_back(*point);
           point->updateNCoordinate(window->getSCNMatrix());
+          //BUG como o displayfile é de objetos não de ponteiros, todas as operações em cima do objeto tem que serem salvas antes do push_back
+          //verificar se da pau em outros lugares
+          displayfile.push_back(*point);
+
           // ---------------------------
 
           //show in displayfile interface
@@ -260,7 +288,15 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           //draw in the drawing_area
           cairo_t *cr;
           cr = cairo_create (surface);
-          vp->drawPoint(point->getNCoords(), cr);
+          //1.4 TODO
+          //vp->drawPoint(point->getNCoords(), cr);
+          //1.4
+          cout << "here" << endl;
+          point->print();
+          clippedDF = window->clipObjects(displayfile);
+          cout << clippedDF->size() << endl;
+          vp->drawObjects(*clippedDF, cr);
+          drawVP();
 
           gtk_widget_queue_draw(window_widget);
           // ------------------------
@@ -308,6 +344,7 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
             // draw in the drawing_area
             cairo_t *cr;
             cr = cairo_create (surface);
+            //1.4 TODO
             vp->drawPolygon(poly->getNCoords(), cr);
             gtk_widget_queue_draw (window_widget);
             // =====================
@@ -359,7 +396,10 @@ extern "C" G_MODULE_EXPORT void btn_translate_obj_clicked(){
         cout << "ncoords" << endl;
         for (auto &c:selected_obj->getNCoords())
           cout << c[0] << ", " << c[1] << endl;
-        vp->drawObjects(displayfile, cr);
+        //1.4
+        vector<Object> *clippedDF = window->clipObjects(displayfile);
+        vp->drawObjects(*clippedDF, cr);
+        drawVP();
         gtk_widget_queue_draw(window_widget);
     }
 }
@@ -389,7 +429,10 @@ extern "C" G_MODULE_EXPORT void btn_scale_obj_clicked(){
         clear_surface();
         selected_obj->scale(Coordinate(sx,sy));
         selected_obj->updateNCoordinate(window->getSCNMatrix());
-        vp->drawObjects(displayfile, cr);
+        //1.4
+        vector<Object> *clippedDF = window->clipObjects(displayfile);
+        vp->drawObjects(*clippedDF, cr);
+        drawVP();
         gtk_widget_queue_draw(window_widget);
 
     }
@@ -421,7 +464,10 @@ extern "C" G_MODULE_EXPORT void btn_rotate_obj_clicked(){
         clear_surface();
         selected_obj->rotate(angle, r_type, Coordinate(px, py));
         selected_obj->updateNCoordinate(window->getSCNMatrix());
-        vp->drawObjects(displayfile, cr);
+        //1.4
+        vector<Object> *clippedDF = window->clipObjects(displayfile);
+        vp->drawObjects(*clippedDF, cr);
+        drawVP();
         gtk_widget_queue_draw(window_widget);
     }
 }
@@ -432,8 +478,10 @@ extern "C" G_MODULE_EXPORT void btn_rotate_right_clicked(){
   window->rotate(-ANGLE);
   updateNCoordinates();
   clear_surface();
-  vp->drawObjects(displayfile, cr);
-
+  //1.4
+  vector<Object> *clippedDF = window->clipObjects(displayfile);
+  vp->drawObjects(*clippedDF, cr);
+  drawVP();
   gtk_widget_queue_draw(window_widget);
 }
 
@@ -443,9 +491,19 @@ extern "C" G_MODULE_EXPORT void btn_rotate_left_clicked(){
   window->rotate(ANGLE);
   updateNCoordinates();
   clear_surface();
-  vp->drawObjects(displayfile, cr);
+  //1.4
+  vector<Object> *clippedDF = window->clipObjects(displayfile);
+  vp->drawObjects(*clippedDF, cr);
+  drawVP();
 
   gtk_widget_queue_draw(window_widget);
+}
+
+extern "C" G_MODULE_EXPORT void btn_refresh_clicked(){
+  cairo_t *cr;
+  cr = cairo_create (surface);
+  clear_surface();
+
 }
 
 int main(int argc, char *argv[]) {
@@ -458,6 +516,7 @@ int main(int argc, char *argv[]) {
     //TODO isolar widgets
     window_widget = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "main_window") );
     drawing_area = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "drawing_area") );
+
 
 
     //DIALOGS WIDGETS ----
@@ -518,34 +577,40 @@ int main(int argc, char *argv[]) {
     gtk_widget_get_preferred_size(drawing_area, &min, NULL);
 
     window = new Window(min.width, min.height);
-    // vp_border = new Polygon("BorderViewPort");
-    // vp_border->addCoordinate(9,9);
-    // vp_border->addCoordinate(9,491);
-    // vp_border->addCoordinate(491,491);
-    // vp_border->addCoordinate(491,9);
-    // vp_border->updateNCoordinate(window->getSCNMatrix());
-    vp = new ViewPort(window, min.width, min.height);
-    // cairo_t *cr;
-    //
-    // cr = cairo_create (surface);
-    // for (auto &c: vp_border->getNCoords())
-    //   cout << c[0] << "," << c[1] << endl;
-    // vp->drawPolygon(vp_border->getNCoords(), cr);
-    gtk_widget_queue_draw(window_widget);
 
+
+    vp = new ViewPort(window, min.width, min.height);
 
     g_signal_connect (drawing_area, "draw", G_CALLBACK (redraw), NULL);
     g_signal_connect (drawing_area,"configure-event", G_CALLBACK (create_surface), NULL);
 
     gtk_builder_connect_signals(gtkBuilder, NULL);
     gtk_widget_show_all(window_widget);
+    //1.4 DRAW BORDER -------------------------
+    vp_border = new Polygon("BorderViewPort");
+    vp_border->addCoordinate(9,9);
+    vp_border->addCoordinate(9,491);
+    vp_border->addCoordinate(491,491);
+    vp_border->addCoordinate(491,9);
+    vp_border->updateNCoordinate(window->getSCNMatrix());
+    cairo_t *cr;
+
+    cr = cairo_create (surface);
+    for (auto &c: vp_border->getNCoords())
+      cout << c[0] << "," << c[1] << endl;
+    vp->drawPolygon(vp_border->getNCoords(), cr);
+    gtk_widget_queue_draw(window_widget);
+    //----------------------------------------
 
     gtk_main ();
     return 0;
 }
 
 void drawVP() {
-
+    cairo_t *cr;
+    cr = cairo_create (surface);
+    vp->drawPolygon(vp_border->getNCoords(), cr);
+    gtk_widget_queue_draw(window_widget);
 }
 
 void updateNCoordinates() {
