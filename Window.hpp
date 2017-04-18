@@ -31,15 +31,15 @@ public:
     void reset();
     Matrix getSCNMatrix() { return _scn_matrix; };
     vector<Object>* clipObjects(vector<Object> displayfile);
+    bool clipPoint(Object obj);
+    Object* clipLine(Object& obj);
+    bool clipPolygon(Object obj);
     void rotate(double angle, RotationType rt=CENTER, Coordinate reference=Coordinate(0.0,0.0)) {
       // Object::rotate(angle, rt, reference);
       update(angle);
     }
 
 private:
-    bool clipPoint(Object obj);
-    Object* clipLine(Object& obj);
-    bool clipPolygon(Object obj);
     void generateSCNMatrix();
     const double __init_width, __init_height;
     double _width, _height, diagonal_sin, diagonal_cos;
@@ -86,7 +86,6 @@ void Window::generateSCNMatrix(){
   double nwidth = _ncoords[1][0] - _ncoords[0][0];
   double nheight = _ncoords[1][1] - _ncoords[0][1];
   Coordinate scale_factor(nwidth/_width, nheight/_height);
-  cout << "Scale factor: " << scale_factor[0] << "," << scale_factor[1] << endl;
   Matrix rotate_matrix(3, 3), scale_matrix(3, 3), temp1_matrix(3, 3), temp2_matrix(3, 3);
   // temp1 holds translate to origin matrix
   ObjectManipulationMatrix::translate_matrix<3,3>(temp, temp1_matrix);
@@ -141,13 +140,10 @@ vector<Object>* Window::clipObjects(vector<Object> displayfile){
 
 bool Window::clipPoint(Object obj) {
   vector<Coordinate> ncoords = obj.getNCoords();
-  cout << "size" << ncoords.size() << endl;
   for(auto &c:ncoords){
-    cout << c[0] << " " << c[1] << endl;
     if ((c[0] < -.96 || c[0] > .96) && (c[1] < -.96 || c[1] > .96))
       return false;
   }
-  cout << "here2" << endl;
   return true;
 }
 

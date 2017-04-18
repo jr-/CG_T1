@@ -273,10 +273,12 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           //CREATE OBJECT/model e add object to the displayfile
           point = new Point(name);
           point->addCoordinate(x,y);
+
+
+          //Duvida: Se updateNCoordinate for feito após inserir o ponto no displayfile, as mudanças não serão salvas
           point->updateNCoordinate(window->getSCNMatrix());
-          //BUG como o displayfile é de objetos não de ponteiros, todas as operações em cima do objeto tem que serem salvas antes do push_back
-          //verificar se da pau em outros lugares
           displayfile.push_back(*point);
+
 
           // ---------------------------
 
@@ -288,17 +290,13 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           //draw in the drawing_area
           cairo_t *cr;
           cr = cairo_create (surface);
-          //1.4 TODO
-          //vp->drawPoint(point->getNCoords(), cr);
-          //1.4
-          cout << "here" << endl;
-          point->print();
-          clippedDF = window->clipObjects(displayfile);
-          cout << clippedDF->size() << endl;
-          vp->drawObjects(*clippedDF, cr);
-          drawVP();
+          // 1.4
+          if(window->clipPoint(*point)){
+
+          vp->drawPoint(point->getNCoords(), cr);
 
           gtk_widget_queue_draw(window_widget);
+          }
           // ------------------------
           break;
        default:
@@ -390,12 +388,6 @@ extern "C" G_MODULE_EXPORT void btn_translate_obj_clicked(){
         clear_surface();
         selected_obj->translate(Coordinate(dx,dy));
         selected_obj->updateNCoordinate(window->getSCNMatrix());
-        cout << "coords: " << endl;
-        for (Coordinate &c:selected_obj->getCoords())
-          cout << c[0] << ", " << c[1] << endl;
-        cout << "ncoords" << endl;
-        for (auto &c:selected_obj->getNCoords())
-          cout << c[0] << ", " << c[1] << endl;
         //1.4
         vector<Object> *clippedDF = window->clipObjects(displayfile);
         vp->drawObjects(*clippedDF, cr);
@@ -596,8 +588,6 @@ int main(int argc, char *argv[]) {
     cairo_t *cr;
 
     cr = cairo_create (surface);
-    for (auto &c: vp_border->getNCoords())
-      cout << c[0] << "," << c[1] << endl;
     vp->drawPolygon(vp_border->getNCoords(), cr);
     gtk_widget_queue_draw(window_widget);
     //----------------------------------------
