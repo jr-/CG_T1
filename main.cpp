@@ -243,7 +243,9 @@ extern "C" G_MODULE_EXPORT void btn_line_clicked(){
           //1.4 TODO
           //vp->drawLine(l1->getNCoords(), cr);
           clippedDF = window->clipObjects(displayfile);
+          cout << "1dnc" << endl;
           vp->drawObjects(*clippedDF, cr);
+          cout << "2dncdj" << endl;
           drawVP();
           gtk_widget_queue_draw(window_widget);
           // -----------------------------

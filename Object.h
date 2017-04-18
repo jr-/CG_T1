@@ -27,6 +27,7 @@ public:
   vector<Coordinate>& getNCoords();
   int getSize() const;
   void addCoordinate(double x, double y);
+  void addNCoordinate(double x, double y);
   void updateNCoordinate(Matrix scn_matrix);
   void translate(Coordinate vect);
   void scale(Coordinate factor);

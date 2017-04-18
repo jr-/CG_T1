@@ -38,8 +38,8 @@ public:
       // Object::rotate(angle, rt, reference);
       update(angle);
     }
-
 private:
+    Object* cohenSuth(Object& obj);
     void generateSCNMatrix();
     const double __init_width, __init_height;
     double _width, _height, diagonal_sin, diagonal_cos;
@@ -147,58 +147,67 @@ bool Window::clipPoint(Object obj) {
   return true;
 }
 
-short computeRegion(Coordinate c){
+short computeRegion(double x, double y){
   short pos = 0;
-  if(c[0] < -.96)
+  if(x < -.96)
     pos = pos | LEFT;
-  else if(c[0] > .96)
+  else if(x > .96)
     pos = pos | RIGHT;
-  if (c[1] < -.96)
+  if (y < -.96)
     pos = pos | DOWN;
-  else if (c[1] > .96)
+  else if (y > .96)
     pos = pos | UP;
   return pos;
 }
 
-Object* Window::clipLine(Object& obj){
-  // if (type == COHENSUTHERLAND)
-  Coordinate c0, c1;
-  c0 = obj.getCoords()[0];
-  c1 = obj.getCoords()[1];
-  unsigned short p1 = computeRegion(c0);
-  unsigned short p2 = computeRegion(c1);
-
-  if (!(p1 | p2))
-    return &obj;
-  else if (p1 & p2)
-    return nullptr;
-  double x, y;
-  unsigned short outside = p1 ? p1 : p2;
-
-  if (outside & UP) {
-			x = c0[0] + (c1[0] - c0[0]) * (1 - c0[1]) / (c1[1] - c0[1]);
-			y = 1;
-		} else if (outside & DOWN) {
-			x = c0[0] + (c1[0] - c0[0]) * (-1 - c0[1]) / (c1[1] - c0[1]);
-			y = -1;
-		} else if (outside & RIGHT) {
-      y = c0[1] + (c1[1] - c0[1]) * (1 - c0[0]) / (c1[0] - c0[0]);
-			x = 1;
-		} else if (outside & LEFT) {
-      y = c0[1] + (c1[1] - c0[1]) * (-1 - c0[0]) / (c1[0] - c0[0]);
-			x = -1;
-		}
+Object* Window::cohenSuth(Object& obj) {
+  double x0, x1, y0, y1;
+  x0 = obj.getNCoords()[0][0]; y0 = obj.getNCoords()[0][1];
+  x1 = obj.getNCoords()[1][0]; y1 = obj.getNCoords()[1][1];
+  unsigned short p0 = computeRegion(x0, y0);
+  unsigned short p1 = computeRegion(x1, y1);
   Line* l = new Line(obj.getName());
-  if (outside == p1){
-    l->addCoordinate(c1[0], c1[1]);
-    l->addCoordinate(x, y);
-  }
-  else {
-    l->addCoordinate(c0[0],c0[1]);
-    l->addCoordinate(x, y);
-  }
+  while((p0 | p1) != 0){
+    if (p0 & p1){
+      return nullptr;
+    }
+    double x, y;
+    unsigned short outside = p0 ? p0 : p1;
+    cout << "partially inside" << endl;
+    if (outside & UP) {
+    		x = x0 + (x1 - x0) * (.96 - y0) / (y1 - y0);
+    		y = .96;
+    	} else if (outside & DOWN) {
+    		x = x0 + (x1 - x0) * (-.96 - y0) / (y1 - y0);
+    		y = -.96;
+    	} else if (outside & RIGHT) {
+        y = y0 + (y1 - y0) * (.96 - x0) / (x1 - x0);
+    		x = .96;
+    	} else if (outside & LEFT) {
+        y = y0 + (y1 - y0) * (-.96 - x0) / (x1 - x0);
+    		x = -.96;
+    	}
+    if (outside == p0){
+      x0 = x;
+      y0 = y;
+      p0 = computeRegion(x0, y0);
+    }
+    else {
+      x1 = x;
+      y1 = y;
+      p1 = computeRegion(x1, y1);
+    }
 
+  }
+  l->addNCoordinate(x0, y0);
+  l->addNCoordinate(x1, y1);
   return l;
+}
+
+Object* Window::clipLine(Object& obj){
+  if (type == COHENSUTHERLAND)
+    return cohenSuth()
+
 }
 
 bool Window::clipPolygon(Object obj){
