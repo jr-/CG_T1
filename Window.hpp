@@ -223,27 +223,28 @@ Object* Window::liangBarsky(Object& obj) {
   if((p1 == 0 && q1 < 0) || (p2 ==0 && q2 < 0) || (p3 == 0 && q3 < 0) || (p4 == 0 && q4 < 0)) {//fora dos limites
     return nullptr;
   }
-
+  cout << "p1:" << p1 << " p2:" << p2 << " p3:" << p3 << " p4:" << p4 << endl;
   double r1(q1/p1), r2(q2/p2), r3(q3/p3), r4(q4/p4);
+  cout << "r1:" << r1 << " r2:" << r2 << " r3:" << r3 << " r4:" << r4 << endl;
   double u1(0), u2(1);
 
   if (p1 < 0)
-    u1 = (p1 > u1) ? p1 : u1;
+    u1 = (r1 > u1) ? r1 : u1;
   else if (p1 > 0)
-    u2 = (p1 < u2) ? p1 : u2;
+    u2 = (r1 < u2) ? r1 : u2;
   if (p2 < 0)
-    u1 = (p2 > u1) ? p2 : u1;
+    u1 = (r2 > u1) ? r2 : u1;
   else if (p2 > 0)
-    u2 = (p2 < u2) ? p2 : u2;
+    u2 = (r2 < u2) ? r2 : u2;
   if (p3 < 0)
-    u1 = (p3 > u1) ? p3 : u1;
+    u1 = (r3 > u1) ? r3 : u1;
   else if (p3 > 0)
-    u2 = (p3 < u2) ? p3 : u2;
+    u2 = (r3 < u2) ? r3 : u2;
   if (p4 < 0)
-    u1 = (p4 > u1) ? p4 : u1;
+    u1 = (r4 > u1) ? r4 : u1;
   else if (p4 > 0)
-    u2 = (p4 < u2) ? p4 : u2;
-
+    u2 = (r4 < u2) ? r4 : u2;
+  cout << "u1:" << u1 << " u2:" << u2 << endl;
   if (u1 > u2)
     return nullptr;
 
