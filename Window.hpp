@@ -1,3 +1,4 @@
+#include <algorithm>
 #define MAX_SIZE 2000
 #define MIN_SIZE 10
 
@@ -5,6 +6,7 @@ const unsigned short UP = 0b1000;
 const unsigned short DOWN = 0b0100;
 const unsigned short RIGHT = 0b0010;
 const unsigned short LEFT = 0b0001;
+enum ClippingType {COHENSUTHERLAND, LIANGBARSKY};
 
 class Window : Object {
 public:
@@ -32,7 +34,7 @@ public:
     Matrix getSCNMatrix() { return _scn_matrix; };
     vector<Object>* clipObjects(vector<Object> displayfile);
     bool clipPoint(Object obj);
-    Object* clipLine(Object& obj);
+    Object* clipLine(Object& obj, ClippingType type);
     bool clipPolygon(Object obj);
     void rotate(double angle, RotationType rt=CENTER, Coordinate reference=Coordinate(0.0,0.0)) {
       // Object::rotate(angle, rt, reference);
@@ -40,6 +42,7 @@ public:
     }
 private:
     Object* cohenSuth(Object& obj);
+    Object* liangBarsky(Object& obj);
     void generateSCNMatrix();
     const double __init_width, __init_height;
     double _width, _height, diagonal_sin, diagonal_cos;
@@ -123,7 +126,7 @@ vector<Object>* Window::clipObjects(vector<Object> displayfile){
                     clipped->push_back(obj);
                   break;
               case ObjectType::LINE:
-                  o = clipLine(obj);
+                  o = clipLine(obj, ClippingType::LIANGBARSKY);
                   if(o != nullptr)
                     clipped->push_back(*o);
                   break;
@@ -173,7 +176,6 @@ Object* Window::cohenSuth(Object& obj) {
     }
     double x, y;
     unsigned short outside = p0 ? p0 : p1;
-    cout << "partially inside" << endl;
     if (outside & UP) {
     		x = x0 + (x1 - x0) * (.96 - y0) / (y1 - y0);
     		y = .96;
@@ -197,16 +199,78 @@ Object* Window::cohenSuth(Object& obj) {
       y1 = y;
       p1 = computeRegion(x1, y1);
     }
-
   }
   l->addNCoordinate(x0, y0);
   l->addNCoordinate(x1, y1);
   return l;
 }
 
-Object* Window::clipLine(Object& obj){
-  if (type == COHENSUTHERLAND)
-    return cohenSuth()
+Object* Window::liangBarsky(Object& obj) {
+  double x0, y0, x1, y1;
+  x0 = obj.getNCoords()[0][0]; y0 = obj.getNCoords()[0][1];
+  x1 = obj.getNCoords()[1][0]; y1 = obj.getNCoords()[1][1];
+
+  double p1 = -(x1-x0);  // -∆x
+  double p2 = -p1;       // ∆x
+  double p3 = -(y1-y0);  // -∆y
+  double p4 = -p3;       // ∆y
+
+  double q1 = x0-(-.96); // x0 - wxmin
+  double q2 = (.96) - x0; // wxmax - x0
+  double q3 = y0 - (-.96); // y0 - wymin
+  double q4 = (.96) - y0;  // wymax - y0
+
+  if((p1 == 0 && q1 < 0) || (p2 ==0 && q2 < 0) || (p3 == 0 && q3 < 0) || (p4 == 0 && q4 < 0)) {//fora dos limites
+    return nullptr;
+  }
+
+  double r1(q1/p1), r2(q2/p2), r3(q3/p3), r4(q4/p4);
+  double u1(0), u2(1);
+
+  if (p1 < 0)
+    u1 = (p1 > u1) ? p1 : u1;
+  else if (p1 > 0)
+    u2 = (p1 < u2) ? p1 : u2;
+  if (p2 < 0)
+    u1 = (p2 > u1) ? p2 : u1;
+  else if (p2 > 0)
+    u2 = (p2 < u2) ? p2 : u2;
+  if (p3 < 0)
+    u1 = (p3 > u1) ? p3 : u1;
+  else if (p3 > 0)
+    u2 = (p3 < u2) ? p3 : u2;
+  if (p4 < 0)
+    u1 = (p4 > u1) ? p4 : u1;
+  else if (p4 > 0)
+    u2 = (p4 < u2) ? p4 : u2;
+
+  if (u1 > u2)
+    return nullptr;
+
+  double xn0(x0), yn0(y0), xn1(x1), yn1(y1);
+
+  if (u1 > 0 && u1 <= 1) {
+    xn0 = x0 + u1 * p2;
+    yn0 = y0 + u1 * p4;
+  }
+  if (u2 < 1 && u2 >= 0) {
+    xn1 = x0 + u2 * p2;
+    yn1 = y0 + u2 * p4;
+  }
+
+  Line* l = new Line(obj.getName());
+  l->addNCoordinate(xn0, yn0);
+  l->addNCoordinate(xn1, yn1);
+  obj.print();
+  l->print();
+  return l;
+}
+
+Object* Window::clipLine(Object& obj, ClippingType type){
+  if (type == ClippingType::COHENSUTHERLAND)
+    return cohenSuth(obj);
+  else
+    return liangBarsky(obj);
 
 }
 
