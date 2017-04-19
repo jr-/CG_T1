@@ -20,6 +20,7 @@ vector<Object> displayfile;
 GtkBuilder  *gtkBuilder;
 GtkWidget *drawing_area;
 GtkWidget *window_widget;
+GtkWidget *rb_lineclip_cs, *rb_lineclip_lb;
 GtkWidget *dialog_pnt, *dialog_line, *dialog_rotate, *dialog_scale, *dialog_translate;
 GtkWidget *entryName_dgpnt, *entryX_dgpnt, *entryY_dgpnt;
 GtkWidget *entryName_dgline, *entryX1_dgline, *entryY1_dgline, *entryX2_dgline, *entryY2_dgline;
@@ -86,6 +87,13 @@ Object::RotationType getRotationTypeByRotateDialog(){
       return Object::RotationType::POINT;
 }
 
+Window::ClippingType getClippingType(){
+  if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rb_lineclip_cs)))
+    return Window::ClippingType::COHENSUTHERLAND;
+  else
+    return Window::ClippingType::LIANGBARSKY;
+}
+
 bool getSelectedObjectName(string &object_name){
     if(!gtk_tree_selection_get_selected(GTK_TREE_SELECTION(treeSelection), NULL, NULL)) {
         return false;
@@ -134,7 +142,7 @@ extern "C" G_MODULE_EXPORT void btn_moveto_right_clicked(){
     cairo_t *cr;
     cr = cairo_create (surface);
     //1.4
-    vector<Object> *clippedDF = window->clipObjects(displayfile);
+    vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
     vp->drawObjects(*clippedDF, cr);
     drawVP();
     gtk_widget_queue_draw(window_widget);
@@ -147,7 +155,7 @@ extern "C" G_MODULE_EXPORT void btn_moveto_down_clicked(){
     cairo_t *cr;
     cr = cairo_create (surface);
     //1.4
-    vector<Object> *clippedDF = window->clipObjects(displayfile);
+    vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
     vp->drawObjects(*clippedDF, cr);
     drawVP();
     gtk_widget_queue_draw(window_widget);
@@ -160,7 +168,7 @@ extern "C" G_MODULE_EXPORT void btn_moveto_left_clicked(){
     cairo_t *cr;
     cr = cairo_create (surface);
     //1.4
-    vector<Object> *clippedDF = window->clipObjects(displayfile);
+    vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
     vp->drawObjects(*clippedDF, cr);
     drawVP();
     gtk_widget_queue_draw(window_widget);
@@ -173,7 +181,7 @@ extern "C" G_MODULE_EXPORT void btn_moveto_up_clicked(){
     cairo_t *cr;
     cr = cairo_create (surface);
     //1.4
-    vector<Object> *clippedDF = window->clipObjects(displayfile);
+    vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
     vp->drawObjects(*clippedDF, cr);
     drawVP();
     gtk_widget_queue_draw(window_widget);
@@ -186,7 +194,7 @@ extern "C" G_MODULE_EXPORT void btn_zoom_out_clicked(){
     cairo_t *cr;
     cr = cairo_create (surface);
     //1.4
-    vector<Object> *clippedDF = window->clipObjects(displayfile);
+    vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
     vp->drawObjects(*clippedDF, cr);
     drawVP();
     gtk_widget_queue_draw(window_widget);
@@ -199,7 +207,7 @@ extern "C" G_MODULE_EXPORT void btn_zoom_in_clicked(){
     cairo_t *cr;
     cr = cairo_create (surface);
     //1.4
-    vector<Object> *clippedDF = window->clipObjects(displayfile);
+    vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
     vp->drawObjects(*clippedDF, cr);
     drawVP();
     gtk_widget_queue_draw(window_widget);
@@ -242,7 +250,7 @@ extern "C" G_MODULE_EXPORT void btn_line_clicked(){
           cr = cairo_create (surface);
           //1.4 TODO
           //vp->drawLine(l1->getNCoords(), cr);
-          clippedDF = window->clipObjects(displayfile);
+          clippedDF = window->clipObjects(displayfile, getClippingType());
           vp->drawObjects(*clippedDF, cr);
           drawVP();
           gtk_widget_queue_draw(window_widget);
@@ -273,10 +281,8 @@ extern "C" G_MODULE_EXPORT void btn_pnt_clicked(){
           //CREATE OBJECT/model e add object to the displayfile
           point = new Point(name);
           point->addCoordinate(x,y);
-
-
-          //Duvida: Se updateNCoordinate for feito após inserir o ponto no displayfile, as mudanças não serão salvas
           point->updateNCoordinate(window->getSCNMatrix());
+          //Duvida: Se updateNCoordinate for feito após inserir o ponto no displayfile, as mudanças não serão salvas
           displayfile.push_back(*point);
 
 
@@ -389,7 +395,7 @@ extern "C" G_MODULE_EXPORT void btn_translate_obj_clicked(){
         selected_obj->translate(Coordinate(dx,dy));
         selected_obj->updateNCoordinate(window->getSCNMatrix());
         //1.4
-        vector<Object> *clippedDF = window->clipObjects(displayfile);
+        vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
         vp->drawObjects(*clippedDF, cr);
         drawVP();
         gtk_widget_queue_draw(window_widget);
@@ -422,7 +428,7 @@ extern "C" G_MODULE_EXPORT void btn_scale_obj_clicked(){
         selected_obj->scale(Coordinate(sx,sy));
         selected_obj->updateNCoordinate(window->getSCNMatrix());
         //1.4
-        vector<Object> *clippedDF = window->clipObjects(displayfile);
+        vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
         vp->drawObjects(*clippedDF, cr);
         drawVP();
         gtk_widget_queue_draw(window_widget);
@@ -457,7 +463,7 @@ extern "C" G_MODULE_EXPORT void btn_rotate_obj_clicked(){
         selected_obj->rotate(angle, r_type, Coordinate(px, py));
         selected_obj->updateNCoordinate(window->getSCNMatrix());
         //1.4
-        vector<Object> *clippedDF = window->clipObjects(displayfile);
+        vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
         vp->drawObjects(*clippedDF, cr);
         drawVP();
         gtk_widget_queue_draw(window_widget);
@@ -471,7 +477,7 @@ extern "C" G_MODULE_EXPORT void btn_rotate_right_clicked(){
   updateNCoordinates();
   clear_surface();
   //1.4
-  vector<Object> *clippedDF = window->clipObjects(displayfile);
+  vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
   vp->drawObjects(*clippedDF, cr);
   drawVP();
   gtk_widget_queue_draw(window_widget);
@@ -484,7 +490,7 @@ extern "C" G_MODULE_EXPORT void btn_rotate_left_clicked(){
   updateNCoordinates();
   clear_surface();
   //1.4
-  vector<Object> *clippedDF = window->clipObjects(displayfile);
+  vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
   vp->drawObjects(*clippedDF, cr);
   drawVP();
 
@@ -508,6 +514,8 @@ int main(int argc, char *argv[]) {
     //TODO isolar widgets
     window_widget = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "main_window") );
     drawing_area = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "drawing_area") );
+    rb_lineclip_cs = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "rb_lineclip_cs") );
+    rb_lineclip_lb = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "rb_lineclip_lb") );
 
 
 

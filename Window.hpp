@@ -6,10 +6,10 @@ const unsigned short UP = 0b1000;
 const unsigned short DOWN = 0b0100;
 const unsigned short RIGHT = 0b0010;
 const unsigned short LEFT = 0b0001;
-enum ClippingType {COHENSUTHERLAND, LIANGBARSKY};
 
 class Window : Object {
 public:
+    enum ClippingType {COHENSUTHERLAND, LIANGBARSKY};
     Window(double width, double height) : Object("Window", ObjectType::WINDOW), __init_width(width),
     __init_height(height), _width(width), _height(height), _angle(0), _scn_matrix(3,3) {
       _coords.emplace_back(0,0);
@@ -32,7 +32,7 @@ public:
     double getHeight() { return _height; }
     void reset();
     Matrix getSCNMatrix() { return _scn_matrix; };
-    vector<Object>* clipObjects(vector<Object> displayfile);
+    vector<Object>* clipObjects(vector<Object> displayfile, ClippingType ct);
     bool clipPoint(Object obj);
     Object* clipLine(Object& obj, ClippingType type);
     bool clipPolygon(Object obj);
@@ -114,7 +114,7 @@ void Window::zoom(double value) {
 
 }
 //1.4
-vector<Object>* Window::clipObjects(vector<Object> displayfile){
+vector<Object>* Window::clipObjects(vector<Object> displayfile, ClippingType ct){
   // 1.4 TODO 1:17:20 da video aula tem como fazer o displayfile
       vector<Object>* clipped = new vector<Object>();
       Object* o = nullptr;
@@ -126,7 +126,7 @@ vector<Object>* Window::clipObjects(vector<Object> displayfile){
                     clipped->push_back(obj);
                   break;
               case ObjectType::LINE:
-                  o = clipLine(obj, ClippingType::LIANGBARSKY);
+                  o = clipLine(obj, ct);
                   if(o != nullptr)
                     clipped->push_back(*o);
                   break;
@@ -223,9 +223,7 @@ Object* Window::liangBarsky(Object& obj) {
   if((p1 == 0 && q1 < 0) || (p2 ==0 && q2 < 0) || (p3 == 0 && q3 < 0) || (p4 == 0 && q4 < 0)) {//fora dos limites
     return nullptr;
   }
-  cout << "p1:" << p1 << " p2:" << p2 << " p3:" << p3 << " p4:" << p4 << endl;
   double r1(q1/p1), r2(q2/p2), r3(q3/p3), r4(q4/p4);
-  cout << "r1:" << r1 << " r2:" << r2 << " r3:" << r3 << " r4:" << r4 << endl;
   double u1(0), u2(1);
 
   if (p1 < 0)
@@ -244,7 +242,7 @@ Object* Window::liangBarsky(Object& obj) {
     u1 = (r4 > u1) ? r4 : u1;
   else if (p4 > 0)
     u2 = (r4 < u2) ? r4 : u2;
-  cout << "u1:" << u1 << " u2:" << u2 << endl;
+
   if (u1 > u2)
     return nullptr;
 
@@ -262,8 +260,7 @@ Object* Window::liangBarsky(Object& obj) {
   Line* l = new Line(obj.getName());
   l->addNCoordinate(xn0, yn0);
   l->addNCoordinate(xn1, yn1);
-  obj.print();
-  l->print();
+
   return l;
 }
 
@@ -272,7 +269,6 @@ Object* Window::clipLine(Object& obj, ClippingType type){
     return cohenSuth(obj);
   else
     return liangBarsky(obj);
-
 }
 
 bool Window::clipPolygon(Object obj){
