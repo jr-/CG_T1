@@ -2,6 +2,8 @@
 #define MAX_SIZE 2000
 #define MIN_SIZE 10
 
+const double WMIN = -.96;
+const double WMAX = .96;
 const unsigned short UP = 0b1000;
 const unsigned short DOWN = 0b0100;
 const unsigned short RIGHT = 0b0010;
@@ -34,8 +36,8 @@ public:
     Matrix getSCNMatrix() { return _scn_matrix; };
     vector<Object>* clipObjects(vector<Object> displayfile, ClippingType ct);
     bool clipPoint(Object obj);
-    Object* clipLine(Object& obj, ClippingType type);
-    bool clipPolygon(Object obj);
+    Object* clipLine(Object& obj, ClippingType type=COHENSUTHERLAND);
+    Object* clipPolygon(Object obj);
     void rotate(double angle, RotationType rt=CENTER, Coordinate reference=Coordinate(0.0,0.0)) {
       // Object::rotate(angle, rt, reference);
       update(angle);
@@ -131,8 +133,9 @@ vector<Object>* Window::clipObjects(vector<Object> displayfile, ClippingType ct)
                     clipped->push_back(*o);
                   break;
               case ObjectType::POLYGON:
-                if(clipPolygon(obj))
-                  clipped->push_back(obj);
+                o = clipPolygon(obj);
+                if(o != nullptr)
+                  clipped->push_back(*o);
                   break;
               default:
                 break;
@@ -143,8 +146,8 @@ vector<Object>* Window::clipObjects(vector<Object> displayfile, ClippingType ct)
 
 bool Window::clipPoint(Object obj) {
   vector<Coordinate> ncoords = obj.getNCoords();
-  for(auto &c:ncoords){
-    if ((c[0] < -.96 || c[0] > .96) && (c[1] < -.96 || c[1] > .96))
+  for(auto &c:ncoords) {
+    if ((c[0] <= WMIN || c[0] >= WMAX) || (c[1] <= WMIN || c[1] >= WMAX))
       return false;
   }
   return true;
@@ -152,13 +155,13 @@ bool Window::clipPoint(Object obj) {
 
 short computeRegion(double x, double y){
   short pos = 0;
-  if(x < -.96)
+  if(x < WMIN)
     pos = pos | LEFT;
-  else if(x > .96)
+  else if(x > WMAX)
     pos = pos | RIGHT;
-  if (y < -.96)
+  if (y < WMIN)
     pos = pos | DOWN;
-  else if (y > .96)
+  else if (y > WMAX)
     pos = pos | UP;
   return pos;
 }
@@ -177,17 +180,17 @@ Object* Window::cohenSuth(Object& obj) {
     double x, y;
     unsigned short outside = p0 ? p0 : p1;
     if (outside & UP) {
-    		x = x0 + (x1 - x0) * (.96 - y0) / (y1 - y0);
-    		y = .96;
+    		x = x0 + (x1 - x0) * (WMAX - y0) / (y1 - y0);
+    		y = WMAX;
     	} else if (outside & DOWN) {
-    		x = x0 + (x1 - x0) * (-.96 - y0) / (y1 - y0);
-    		y = -.96;
+    		x = x0 + (x1 - x0) * (WMIN - y0) / (y1 - y0);
+    		y = WMIN;
     	} else if (outside & RIGHT) {
-        y = y0 + (y1 - y0) * (.96 - x0) / (x1 - x0);
-    		x = .96;
+        y = y0 + (y1 - y0) * (WMAX - x0) / (x1 - x0);
+    		x = WMAX;
     	} else if (outside & LEFT) {
-        y = y0 + (y1 - y0) * (-.96 - x0) / (x1 - x0);
-    		x = -.96;
+        y = y0 + (y1 - y0) * (WMIN - x0) / (x1 - x0);
+    		x = WMIN;
     	}
     if (outside == p0){
       x0 = x;
@@ -215,10 +218,10 @@ Object* Window::liangBarsky(Object& obj) {
   double p3 = -(y1-y0);  // -∆y
   double p4 = -p3;       // ∆y
 
-  double q1 = x0-(-.96); // x0 - wxmin
-  double q2 = (.96) - x0; // wxmax - x0
-  double q3 = y0 - (-.96); // y0 - wymin
-  double q4 = (.96) - y0;  // wymax - y0
+  double q1 = x0-(WMIN); // x0 - wxmin
+  double q2 = (WMAX) - x0; // wxmax - x0
+  double q3 = y0 - (WMIN); // y0 - wymin
+  double q4 = (WMAX) - y0;  // wymax - y0
 
   if((p1 == 0 && q1 < 0) || (p2 ==0 && q2 < 0) || (p3 == 0 && q3 < 0) || (p4 == 0 && q4 < 0)) {//fora dos limites
     return nullptr;
@@ -271,6 +274,79 @@ Object* Window::clipLine(Object& obj, ClippingType type){
     return liangBarsky(obj);
 }
 
-bool Window::clipPolygon(Object obj){
-  return true;
+Object* Window::clipPolygon(Object obj){
+  vector<Coordinate> lmt_window{Coordinate(1,1), Coordinate(1,-1), Coordinate(-1,-1), Coordinate(-1,1)};
+  // PASSO 1 passar cada par de vertices pelo clipador de linhas
+  Coordinate v1, v2;
+  bool v1in, v2in;
+  vector<Coordinate> ncoords = obj.getNCoords();
+  vector<Coordinate> newcoords{};
+  Object *temp;
+  Object pnt = Point("temp");
+  int index = 0;
+  cout << "Polygon coords:";
+  for (auto &c: ncoords) cout << " (" << c[0] << "," << c[1] <<")";
+  cout << endl;
+  for(;index < (ncoords.size()-1); index++){
+    v1 = ncoords[index]; pnt.addNCoordinate(v1); v1in = clipPoint(pnt);
+    pnt = Point("temp");
+    v2 = ncoords[index+1]; pnt.addNCoordinate(v2); v2in = clipPoint(pnt);
+    pnt = Point("temp");
+    cout << v1in << ", " << v2in << endl;
+    if (v1in && v2in) {
+      newcoords.push_back(v2);
+      continue;
+    }
+    temp = new Line("temp");
+    temp->addNCoordinate(v1[0],v1[1]); temp->addNCoordinate(v2[0],v2[1]);
+    temp = clipLine(*temp);
+    if (temp == nullptr) continue;
+    v1 = temp->getNCoords()[0]; v2 = temp->getNCoords()[1];
+    if (!v1in && v2in){ // v1 out -> v2 in
+      newcoords.push_back(v1);
+      newcoords.push_back(v2);
+    } else if (v1in && !v2in) { // v1 in -> v2 out
+      // ncoords[index+1] = v2;
+      newcoords.push_back(v2);
+    } else { // other case (v1 out -> v2 out, but a piece of line segment is inside the window area)
+      // ncoords[index+1] = v2;
+      newcoords.push_back(v1);
+      newcoords.push_back(v2);
+    }
+  }
+  // Cliping from last Coordinate to first Coordinate
+  cout << "last part" << index << endl;
+  v1 = ncoords[index]; pnt.addNCoordinate(v1); v1in = clipPoint(pnt);
+  pnt = Point("temp");
+  v2 = ncoords[0]; pnt.addNCoordinate(v2); v2in = clipPoint(pnt);
+  cout << "ok" << endl;
+  if (v1in && v2in) {
+    newcoords.push_back(v2);
+    goto END;
+  }
+  cout << "fine" << endl;
+  temp = new Line("temp");
+  temp->addNCoordinate(v1[0],v1[1]); temp->addNCoordinate(v2[0],v2[1]);
+  temp = clipLine(*temp);
+  if (temp == nullptr) goto END;
+  v1 = temp->getNCoords()[0]; v2 = temp->getNCoords()[1];
+  cout << "ok" << endl;
+  if (!v1in && v2in){ // v1 out -> v2 in
+    newcoords.push_back(v1);
+    newcoords.push_back(v2);
+  } else if (v1in && !v2in) { // v1 in -> v2 out
+    // ncoords[0] = v2;
+    newcoords.push_back(v2);
+  } else { // other case (v1 out -> v2 out, but a piece of line segment is inside the window area)
+    ncoords[0] = v2;
+    newcoords.push_back(v1);
+    newcoords.push_back(v2);
+  }
+END:
+  cout << "nice" << endl;
+  temp = new Polygon(obj.getName());
+  cout << "Polygon created" << endl;
+  for(auto& c:newcoords)
+    temp->addNCoordinate(c);
+  return temp;
 }

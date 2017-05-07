@@ -8,7 +8,13 @@ class Coordinate {
       double getY() const { return _y;}
       void move(double x, double y) { _x += x; _y += y; }
       void set(double x, double y) { _x = x; _y = y; }
-      double operator[](int i) {switch (i) {
+      bool operator==(Coordinate& c) {
+        if (c[0] == _x && c[1] == _y)
+          return true;
+        return false;
+      }
+      double operator[](int i) {
+        switch (i) {
         case 0:
           return _x;
         case 1:
@@ -17,7 +23,8 @@ class Coordinate {
           return 1.0;
         default:
           return 0.0;
-      }}
+      }
+    }
 
   private:
       double _x, _y;

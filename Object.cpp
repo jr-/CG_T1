@@ -54,6 +54,10 @@ void Object::addNCoordinate(double x, double y) {
   _ncoords.emplace_back(x, y);
 }
 
+void Object::addNCoordinate(Coordinate c){
+  _ncoords.emplace_back(c[0], c[1]);
+}
+
 void Object::updateNCoordinate(Matrix scn_matrix){
   //TODO
   _ncoords.clear();
