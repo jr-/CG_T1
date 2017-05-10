@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #define MAX_SIZE 2000
 #define MIN_SIZE 10
 
@@ -123,22 +124,22 @@ vector<Object>* Window::clipObjects(vector<Object> displayfile, ClippingType ct)
       for( auto &obj : displayfile) {
           ObjectType type = obj.getType();
           switch(type) {
-              case ObjectType::POINT:
-                  if(clipPoint(obj))
-                    clipped->push_back(obj);
-                  break;
-              case ObjectType::LINE:
-                  o = clipLine(obj, ct);
-                  if(o != nullptr)
-                    clipped->push_back(*o);
-                  break;
-              case ObjectType::POLYGON:
-                o = clipPolygon(obj);
-                if(o != nullptr)
-                  clipped->push_back(*o);
-                  break;
-              default:
-                break;
+            case ObjectType::POINT:
+              if(clipPoint(obj))
+                clipped->push_back(obj);
+              break;
+            case ObjectType::LINE:
+              o = clipLine(obj, ct);
+              if(o != nullptr)
+                clipped->push_back(*o);
+              break;
+            case ObjectType::POLYGON:
+              o = clipPolygon(obj);
+              if(o != nullptr)
+                clipped->push_back(*o);
+              break;
+            default:
+              break;
           }
       }
       return clipped;
@@ -153,6 +154,7 @@ bool Window::clipPoint(Object obj) {
   return true;
 }
 
+
 short computeRegion(double x, double y){
   short pos = 0;
   if(x < WMIN)
@@ -165,6 +167,7 @@ short computeRegion(double x, double y){
     pos = pos | UP;
   return pos;
 }
+
 
 Object* Window::cohenSuth(Object& obj) {
   double x0, x1, y0, y1;
@@ -196,8 +199,7 @@ Object* Window::cohenSuth(Object& obj) {
       x0 = x;
       y0 = y;
       p0 = computeRegion(x0, y0);
-    }
-    else {
+    } else {
       x1 = x;
       y1 = y;
       p1 = computeRegion(x1, y1);
@@ -275,78 +277,46 @@ Object* Window::clipLine(Object& obj, ClippingType type){
 }
 
 Object* Window::clipPolygon(Object obj){
-  vector<Coordinate> lmt_window{Coordinate(1,1), Coordinate(1,-1), Coordinate(-1,-1), Coordinate(-1,1)};
-  // PASSO 1 passar cada par de vertices pelo clipador de linhas
   Coordinate v1, v2;
   bool v1in, v2in;
+  double x0, x1, y0, y1, x, y, edge;
   vector<Coordinate> ncoords = obj.getNCoords();
+  // ncoords.push_back(ncoords.front());
   vector<Coordinate> newcoords{};
   Object *temp;
-  Object pnt = Point("temp");
-  int index = 0;
-  cout << "Polygon coords:";
-  for (auto &c: ncoords) cout << " (" << c[0] << "," << c[1] <<")";
-  cout << endl;
-  for(;index < (ncoords.size()-1); index++){
-    v1 = ncoords[index]; pnt.addNCoordinate(v1); v1in = clipPoint(pnt);
-    pnt = Point("temp");
-    v2 = ncoords[index+1]; pnt.addNCoordinate(v2); v2in = clipPoint(pnt);
-    pnt = Point("temp");
-    cout << v1in << ", " << v2in << endl;
-    if (v1in && v2in) {
-      newcoords.push_back(v2);
-      continue;
+  short region = 0;
+  for(int i = 0; i<4 ; i++) {
+    region = 0b0001 << i; // change region each iteration
+    edge = ((UP | RIGHT) & region) ? WMAX : WMIN; // check if the edge is maximum or minimun value of window
+    ncoords.push_back(ncoords.front()); //
+    for(int index = 0; index < (ncoords.size()-1); index++){
+      if(ncoords.size() < 2) break;
+      v1 = ncoords[index]; x0 = v1[0]; y0 = v1[1];
+      v2 = ncoords[index+1]; x1 = v2[0]; y1 = v2[1];
+      v1in = (computeRegion(x0, y0) & region) ? false : true;
+      v2in = (computeRegion(x1, y1) & region) ? false : true;
+      if (v1in && v2in) {
+        newcoords.push_back(v2);
+      } else if ((v1in && !v2in) || (!v1in && v2in)) {
+        if ((UP | DOWN) & region){
+      		x = x0 + (x1 - x0) * (edge - y0) / (y1 - y0);
+      		y = edge;
+        }
+        if ((RIGHT | LEFT) & region){
+          y = y0 + (y1 - y0) * (edge - x0) / (x1 - x0);
+        	x = edge;
+        }
+        newcoords.emplace_back(x,y);
+        if (!v1in && v2in) newcoords.emplace_back(x1,y1);
+      }
     }
-    temp = new Line("temp");
-    temp->addNCoordinate(v1[0],v1[1]); temp->addNCoordinate(v2[0],v2[1]);
-    temp = clipLine(*temp);
-    if (temp == nullptr) continue;
-    v1 = temp->getNCoords()[0]; v2 = temp->getNCoords()[1];
-    if (!v1in && v2in){ // v1 out -> v2 in
-      newcoords.push_back(v1);
-      newcoords.push_back(v2);
-    } else if (v1in && !v2in) { // v1 in -> v2 out
-      // ncoords[index+1] = v2;
-      newcoords.push_back(v2);
-    } else { // other case (v1 out -> v2 out, but a piece of line segment is inside the window area)
-      // ncoords[index+1] = v2;
-      newcoords.push_back(v1);
-      newcoords.push_back(v2);
-    }
+    ncoords = vector<Coordinate>(newcoords);
+    newcoords = vector<Coordinate>();
   }
-  // Cliping from last Coordinate to first Coordinate
-  cout << "last part" << index << endl;
-  v1 = ncoords[index]; pnt.addNCoordinate(v1); v1in = clipPoint(pnt);
-  pnt = Point("temp");
-  v2 = ncoords[0]; pnt.addNCoordinate(v2); v2in = clipPoint(pnt);
-  cout << "ok" << endl;
-  if (v1in && v2in) {
-    newcoords.push_back(v2);
-    goto END;
-  }
-  cout << "fine" << endl;
-  temp = new Line("temp");
-  temp->addNCoordinate(v1[0],v1[1]); temp->addNCoordinate(v2[0],v2[1]);
-  temp = clipLine(*temp);
-  if (temp == nullptr) goto END;
-  v1 = temp->getNCoords()[0]; v2 = temp->getNCoords()[1];
-  cout << "ok" << endl;
-  if (!v1in && v2in){ // v1 out -> v2 in
-    newcoords.push_back(v1);
-    newcoords.push_back(v2);
-  } else if (v1in && !v2in) { // v1 in -> v2 out
-    // ncoords[0] = v2;
-    newcoords.push_back(v2);
-  } else { // other case (v1 out -> v2 out, but a piece of line segment is inside the window area)
-    ncoords[0] = v2;
-    newcoords.push_back(v1);
-    newcoords.push_back(v2);
-  }
-END:
-  cout << "nice" << endl;
+  cout << "size coords: " << ncoords.size() << endl;
+  if (ncoords.size() == 0) return nullptr; // check if the edge is maximum or minimun value of window
   temp = new Polygon(obj.getName());
-  cout << "Polygon created" << endl;
-  for(auto& c:newcoords)
+  for(auto& c:ncoords)
     temp->addNCoordinate(c);
   return temp;
 }
