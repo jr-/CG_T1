@@ -136,13 +136,16 @@ extern "C" G_MODULE_EXPORT void btn_add_coord_plg_clicked(){
 }
 
 extern "C" G_MODULE_EXPORT void btn_moveto_right_clicked(){
+    // cout << "antes:" << endl;
+    // updateNCoordinates();
     window->move(10.0, 0.0);
     updateNCoordinates();
+
+    //1.4
+    vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
     clear_surface();
     cairo_t *cr;
     cr = cairo_create (surface);
-    //1.4
-    vector<Object> *clippedDF = window->clipObjects(displayfile, getClippingType());
     vp->drawObjects(*clippedDF, cr);
     drawVP();
     gtk_widget_queue_draw(window_widget);
@@ -586,6 +589,7 @@ int main(int argc, char *argv[]) {
 
     gtk_builder_connect_signals(gtkBuilder, NULL);
     gtk_widget_show_all(window_widget);
+
     //1.4 DRAW BORDER -------------------------
     vp_border = new Polygon("BorderViewPort");
     vp_border->addCoordinate(9,9);
@@ -593,11 +597,7 @@ int main(int argc, char *argv[]) {
     vp_border->addCoordinate(491,491);
     vp_border->addCoordinate(491,9);
     vp_border->updateNCoordinate(window->getSCNMatrix());
-    cairo_t *cr;
 
-    cr = cairo_create (surface);
-    vp->drawPolygon(vp_border->getNCoords(), cr);
-    gtk_widget_queue_draw(window_widget);
     //----------------------------------------
 
     gtk_main ();
@@ -615,6 +615,17 @@ void updateNCoordinates() {
   Matrix scn_matrix = window->getSCNMatrix();
   for (Object &o:displayfile) {
     o.updateNCoordinate(scn_matrix);
+    //WARNING HEISENBUG HERE
+    cout << "ncoord:" << endl;
+    for(auto &c : o.getNCoords()){
+        cout << c[0] << endl;
+        cout << c[1] << endl;
+    }
+
+    for(auto &c : o.getCoords()){
+        cout << c[0] << endl;
+        cout << c[1] << endl;
+    }
   }
 
 }

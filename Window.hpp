@@ -22,6 +22,7 @@ public:
       double d = sqrt(pow(_width,2) + pow(_height,2));
       diagonal_sin = _height / d;
       diagonal_cos = _width / d;
+
       _wc = getCenter();
       generateSCNMatrix();
     }
@@ -81,6 +82,11 @@ void Window::update(int angle){
   // rotation angle update
   _angle += angle;
   // window center update;
+  // WARNING HEISENBUG HERE :(
+  cout << "window update:" << endl;
+  cout << d << endl;
+  cout << diagonal_sin << endl;
+  cout << diagonal_cos << endl;
   _wc = getCenter();
   generateSCNMatrix();
 }
