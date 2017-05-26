@@ -40,7 +40,8 @@ public:
     bool clipPoint(Object obj);
     Object* clipLine(Object& obj, ClippingType type=COHENSUTHERLAND);
     Object* clipPolygon(Object obj);
-    vector<Object> clipCurve(Object obj);
+    Object* clipCurve(Object obj);
+    vector<Object> clipCurve3(Object obj);
     void rotate(double angle, RotationType rt=CENTER, Coordinate reference=Coordinate(0.0,0.0)) {
       // Object::rotate(angle, rt, reference);
       update(angle);
@@ -147,9 +148,12 @@ vector<Object>* Window::clipObjects(vector<Object> displayfile, ClippingType ct)
                 clipped->push_back(*o);
               break;
             case ObjectType::CURVE:
-              tmp_clipped = clipCurve(obj);
-                for( Object &obj: tmp_clipped)
-                  clipped->push_back(obj);
+              // tmp_clipped = clipCurve(obj);
+              //   for( Object &obj: tmp_clipped)
+              //     clipped->push_back(obj);
+              o = clipCurve(obj);
+              if(o != nullptr)
+                clipped->push_back(*o);
               break;
             default:
               break;
@@ -333,10 +337,44 @@ Object* Window::clipPolygon(Object obj){
     temp->addNCoordinate(c);
   return temp;
 }
+
+Object* Window::clipCurve(Object obj) {
+  Curve *c = new Curve(obj.getName());
+  vector<Coordinate> ncoords = obj.getNCoords();
+  Object* l2 = nullptr;
+  bool in = true;
+  bool in2 = true;
+
+  for(int i = 0; i < ncoords.size(); i++) {
+      Point p = Point("int");
+      Point p2 = Point("int2");
+      p.addNCoordinate(ncoords[i]);
+      p2.addNCoordinate(ncoords[i+1]);
+      in = clipPoint(p);
+      in2 = clipPoint(p2);
+
+      if(in ^ in2) {
+        Line lin = Line("int");
+        lin.addNCoordinate(ncoords[i]);
+        lin.addNCoordinate(ncoords[i+1]);
+        l2 = clipLine(lin, ClippingType::COHENSUTHERLAND);
+        vector<Coordinate> lNcoords = l2->getNCoords();
+        c->addNCoordinate(lNcoords[0]);
+        if(!in2){
+            c->addNCoordinate(lNcoords[1]);
+        }
+
+      } else if(in & in2) { //os 2 dentro
+        c->addNCoordinate(ncoords[i]);
+      }
+  }
+
+  return c;
+}
 //verifica se c[i] e c[i+1] estão dentro da window
 //se c[i] xor c[i+1] se um estiver fora da window, faz clipLine e add c[i] na lista de coordenadas, se o c[i+1] estiver fora da window add c[i+1] na lista tambem
 //se c[i] e c[i+1] estiverem fora da window, não faz nada
-vector<Object> Window::clipCurve(Object obj) {
+vector<Object> Window::clipCurve3(Object obj) {
   vector<Object> objs;
   vector<Coordinate> local;
   vector<Coordinate> ncoords = obj.getNCoords();
@@ -371,6 +409,12 @@ vector<Object> Window::clipCurve(Object obj) {
       } else if(in & in2) { //os 2 dentro
         local.push_back(ncoords[i]);
       }
+  }
+  if(local.size() > 0){
+    Curve c = Curve("nome");
+    for( auto &loc: local)
+      c.addNCoordinate(loc);
+    objs.push_back(c);
   }
   return objs;
 }
