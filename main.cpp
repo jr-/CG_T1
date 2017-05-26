@@ -25,6 +25,7 @@ GtkWidget *dialog_pnt, *dialog_line, *dialog_rotate, *dialog_scale, *dialog_tran
 GtkWidget *entryName_dgpnt, *entryX_dgpnt, *entryY_dgpnt;
 GtkWidget *entryName_dgline, *entryX1_dgline, *entryY1_dgline, *entryX2_dgline, *entryY2_dgline;
 GtkWidget *dialog_plg, *entryName_dgplg, *entryX_dgplg, *entryY_dgplg;
+GtkWidget *dialog_curve, *entryName_dgcurve, *entryX_dgcurve, *entryY_dgcurve;
 GtkWidget *entryDX_dgtrans, *entryDY_dgtrans;
 //SCALE WIDGETS ---------
 GtkWidget *entrySX_dgscale, *entrySY_dgscale;
@@ -41,6 +42,10 @@ GtkTreeIter iter;
 GtkListStore *listStore_dgplg;
 GtkTreeModel *dgplg_model;
 GtkTreeSelection *treeplgSelection;
+
+GtkListStore *listStore_dgcurve;
+GtkTreeModel *dgcurve_model;
+GtkTreeSelection *treecurveSelection;
 
 void updateNCoordinates();
 void drawVP();
@@ -131,6 +136,21 @@ extern "C" G_MODULE_EXPORT void btn_add_coord_plg_clicked(){
 
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(entryX_dgplg), 0.0);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON(entryY_dgplg), 0.0);
+
+
+}
+
+extern "C" G_MODULE_EXPORT void btn_add_coord_curve_clicked(){
+  listStore_dgcurve = GTK_LIST_STORE( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "liststore_addcoordcurve"));
+  GtkTreeIter iterC;
+  double x = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryX_dgcurve));
+  double y = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entryY_dgcurve));
+
+  gtk_list_store_append(listStore_dgcurve, &iterC);
+  gtk_list_store_set(listStore_dgcurve, &iterC, 0, x, 1, y, -1);
+
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(entryX_dgcurve), 0.0);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(entryY_dgcurve), 0.0);
 
 
 }
@@ -372,6 +392,64 @@ extern "C" G_MODULE_EXPORT void btn_plg_clicked(){
     gtk_widget_hide(dialog_plg);
 }
 
+extern "C" G_MODULE_EXPORT void btn_curve_clicked() {
+    GtkTreeIter iterC;
+    gboolean valid;
+    string name;
+    Curve *curve;
+    gint result = gtk_dialog_run (GTK_DIALOG (dialog_curve));
+    GtkTreeView* tree = GTK_TREE_VIEW( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "treeview_addcoordcurve" ) );
+    dgcurve_model = gtk_tree_view_get_model(tree);
+    treecurveSelection = gtk_tree_view_get_selection(tree);
+    switch (result)
+    {
+        case GTK_RESPONSE_OK:
+        gdouble x,y;
+        gdouble xI, yI;
+        name = gtk_entry_get_text(GTK_ENTRY(entryName_dgcurve));
+        valid = gtk_tree_model_get_iter_first(dgcurve_model, &iterC);
+        curve = new Curve(name);
+
+        gtk_tree_model_get(dgcurve_model, &iterC, 0, &x, 1, &y, -1);
+        xI = x;
+        yI = y;
+        curve->addControlPoint(x,y);
+        valid = gtk_tree_model_iter_next(dgcurve_model, &iterC);
+
+        while(valid) {
+          gtk_tree_model_get(dgcurve_model, &iterC, 0, &x, 1, &y, -1);
+
+
+          curve->addControlPoint(x,y);
+          valid = gtk_tree_model_iter_next(dgcurve_model, &iterC);
+        }
+        curve->generateCurve();
+        curve->updateNCoordinate(window->getSCNMatrix());
+
+        // draw in the drawing_area
+        cairo_t *cr;
+        cr = cairo_create (surface);
+
+        vp->drawCurve(curve->getNCoords(), cr);
+        gtk_widget_queue_draw (window_widget);
+        // =====================
+
+        gtk_list_store_clear(listStore_dgcurve);
+        displayfile.push_back(*curve);
+
+        //show in displayfile interface
+        gtk_list_store_append(listStore, &iter);
+        gtk_list_store_set(listStore, &iter, 0, name.c_str(), 1, "Curva", -1);
+        // ===========================================
+
+        break;
+    default:
+        gtk_list_store_clear(listStore_dgcurve);
+        break;
+    }
+    gtk_widget_hide(dialog_curve);
+}
+
 extern "C" G_MODULE_EXPORT void btn_translate_obj_clicked(){
     string name_selected_obj;
     bool hasObjectSelected = getSelectedObjectName(name_selected_obj);
@@ -526,6 +604,7 @@ int main(int argc, char *argv[]) {
     dialog_pnt = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_pnt") );
     dialog_line = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_line") );
     dialog_plg = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_plg") );
+    dialog_curve = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_curve") );
     dialog_translate = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_translate") );
     dialog_scale = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_scale") );
     dialog_rotate = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "dialog_rotate") );
@@ -550,6 +629,12 @@ int main(int argc, char *argv[]) {
     entryX_dgplg = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryx_dgplg") );
     entryY_dgplg = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryy_dgplg") );
     // -------------------
+
+    //CURVE WIDGETS ----
+    entryName_dgcurve = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "name_dgcurve") );
+    entryX_dgcurve = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryx_dgcurve") );
+    entryY_dgcurve = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entryy_dgcurve") );
+    // -----------------
 
     //TRANSLATE WIDGETS ----
     entryDX_dgtrans = GTK_WIDGET( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "entrydx_dgtrans") );

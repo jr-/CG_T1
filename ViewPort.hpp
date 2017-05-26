@@ -9,6 +9,7 @@ public:
     void drawPoint(vector<Coordinate> coords, cairo_t *cr);
     void drawLine(vector<Coordinate> coords, cairo_t *cr);
     void drawPolygon(vector<Coordinate> coords, cairo_t *cr);
+    void drawCurve(vector<Coordinate> c, cairo_t *cr);
 
 private:
     Window* _window;
@@ -48,6 +49,9 @@ void ViewPort::drawObjects(vector<Object> displayfile, cairo_t *cr){
             case ObjectType::POLYGON:
                 drawPolygon(obj.getNCoords(), cr);
                 break;
+            case ObjectType::CURVE:
+                drawCurve(obj.getNCoords(), cr);
+                break;
             default:
               break;
         }
@@ -74,5 +78,14 @@ void ViewPort::drawPolygon(vector<Coordinate> c, cairo_t *cr) {
       cairo_line_to(cr, coords[i].getX(), coords[i].getY());
     }
     cairo_line_to(cr, coords[0].getX(), coords[0].getY());
+    cairo_stroke(cr);
+}
+
+void ViewPort::drawCurve(vector<Coordinate> c, cairo_t *cr) {
+    vector<Coordinate> coords = transformObject(c);
+    cairo_move_to(cr, coords[0].getX(), coords[0].getY());
+    for(int i = 1; i < coords.size(); i++) {
+      cairo_line_to(cr, coords[i].getX(), coords[i].getY());
+    }
     cairo_stroke(cr);
 }

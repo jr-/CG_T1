@@ -7,7 +7,7 @@
 using namespace std;
 extern const double PI;
 
-enum ObjectType { POINT, LINE, POLYGON, WINDOW };
+enum ObjectType { POINT, LINE, POLYGON, WINDOW, CURVE };
 class Window;
 class Object {
 protected:
@@ -49,6 +49,17 @@ class Line: public Object {
 class Polygon: public Object {
   public:
     Polygon(string name) : Object(name, ObjectType::POLYGON) {}
+};
+
+class Curve: public Object {
+  public:
+    Curve(string name) : Object(name, ObjectType::CURVE) {}
+    void generateCurve();
+    vector<Coordinate>& getControlPoints();
+    void addControlPoint(double x, double y);
+  private:
+    double tRlx = 0.02;//determina a quantidade de pontos que vão ser criados
+    vector<Coordinate> controlPoints; //4, 7, 10, 13...
 };
 
 namespace ObjectManipulationMatrix {

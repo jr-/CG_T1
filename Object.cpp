@@ -120,3 +120,41 @@ void Object::rotate(double angle, RotationType rt, Coordinate reference) {
   }
   translate(reference);
 }
+
+vector<Coordinate>& Curve::getControlPoints() {
+    return controlPoints;
+}
+
+void Curve::addControlPoint(double x, double y) {
+    controlPoints.emplace_back(x, y);
+}
+
+void Curve::generateCurve() {
+    int nCurves = (controlPoints.size()-4)/3 +1;
+    _coords.clear();
+    auto cp = controlPoints;
+
+    for(int i = 0; i < nCurves; i++) {
+      for(double t = 0; t < 1; t += tRlx) {
+          double x, y;
+
+          double l1, l2, l3, l4;
+          double t2 = t * t;
+          double t3 = t2 * t;
+          l1 = (-1*t3 +3*t2 -3*t +1);
+          l2 = (3*t3 -6*t2 +3*t + 0);
+          l3 = (-3*t3 +3*t2);
+          l4 = (1*t3);
+
+          x = cp[i*3][0]*l1 + cp[i*3+1][0]*l2 +
+              cp[i*3+2][0]*l3 + cp[i*3+3][0]*l4;
+
+          y = cp[i*3][1]*l1 + cp[i*3+1][1]*l2 +
+              cp[i*3+2][1]*l3 + cp[i*3+3][1]*l4;
+
+          _coords.emplace_back(x, y);
+
+      }
+    }
+    cout << _coords.size() << endl;
+}

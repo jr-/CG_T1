@@ -40,6 +40,7 @@ public:
     bool clipPoint(Object obj);
     Object* clipLine(Object& obj, ClippingType type=COHENSUTHERLAND);
     Object* clipPolygon(Object obj);
+    vector<Object> clipCurve(Object obj);
     void rotate(double angle, RotationType rt=CENTER, Coordinate reference=Coordinate(0.0,0.0)) {
       // Object::rotate(angle, rt, reference);
       update(angle);
@@ -127,6 +128,7 @@ vector<Object>* Window::clipObjects(vector<Object> displayfile, ClippingType ct)
   // 1.4 TODO 1:17:20 da video aula tem como fazer o displayfile
       vector<Object>* clipped = new vector<Object>();
       Object* o = nullptr;
+      vector<Object> tmp_clipped = vector<Object>();
       for( auto &obj : displayfile) {
           ObjectType type = obj.getType();
           switch(type) {
@@ -143,6 +145,11 @@ vector<Object>* Window::clipObjects(vector<Object> displayfile, ClippingType ct)
               o = clipPolygon(obj);
               if(o != nullptr)
                 clipped->push_back(*o);
+              break;
+            case ObjectType::CURVE:
+              tmp_clipped = clipCurve(obj);
+                for( Object &obj: tmp_clipped)
+                  clipped->push_back(obj);
               break;
             default:
               break;
@@ -325,4 +332,45 @@ Object* Window::clipPolygon(Object obj){
   for(auto& c:ncoords)
     temp->addNCoordinate(c);
   return temp;
+}
+//verifica se c[i] e c[i+1] estão dentro da window
+//se c[i] xor c[i+1] se um estiver fora da window, faz clipLine e add c[i] na lista de coordenadas, se o c[i+1] estiver fora da window add c[i+1] na lista tambem
+//se c[i] e c[i+1] estiverem fora da window, não faz nada
+vector<Object> Window::clipCurve(Object obj) {
+  vector<Object> objs;
+  vector<Coordinate> local;
+  vector<Coordinate> ncoords = obj.getNCoords();
+  Line* l2 = nullptr;
+  bool in = true;
+  bool in2 = true;
+
+  for(int i = 0; i < ncoords.size(); i++) {
+      Point p = Point("int");
+      Point p2 = Point("int2");
+      p.addNCoordinate(ncoords[i]);
+      p2.addNCoordinate(ncoords[i+1]);
+      in = clipPoint(p);
+      in2 = clipPoint(p2);
+
+      if(in ^ in2) {
+        Line lin = Line("int");
+        lin.addNCoordinate(ncoords[i]);
+        lin.addNCoordinate(ncoords[i+1]);
+        clipLine(lin, ClippingType::COHENSUTHERLAND);
+        vector<Coordinate> lNcoords = l2->getNCoords();
+        local.push_back(lNcoords[0]);
+        if(!in2){
+          local.push_back(lNcoords[1]);
+          Curve c = Curve("nome");
+          for(auto &loc: local)
+            c.addNCoordinate(loc);
+
+          local.clear();
+          objs.push_back(c);
+        }
+      } else if(in & in2) { //os 2 dentro
+        local.push_back(ncoords[i]);
+      }
+  }
+  return objs;
 }
