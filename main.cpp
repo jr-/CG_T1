@@ -416,7 +416,7 @@ extern "C" G_MODULE_EXPORT void btn_curve_clicked() {
     GtkTreeIter iterC;
     gboolean valid;
     string name;
-    Curve *curve;
+    BezierCurve *curve;
     gint result = gtk_dialog_run (GTK_DIALOG (dialog_curve));
     GtkTreeView* tree = GTK_TREE_VIEW( gtk_builder_get_object( GTK_BUILDER(gtkBuilder), "treeview_addcoordcurve" ) );
     dgcurve_model = gtk_tree_view_get_model(tree);
@@ -428,7 +428,7 @@ extern "C" G_MODULE_EXPORT void btn_curve_clicked() {
         gdouble xI, yI;
         name = gtk_entry_get_text(GTK_ENTRY(entryName_dgcurve));
         valid = gtk_tree_model_get_iter_first(dgcurve_model, &iterC);
-        curve = new Curve(name);
+        curve = new BezierCurve(name);
 
         gtk_tree_model_get(dgcurve_model, &iterC, 0, &x, 1, &y, -1);
         xI = x;

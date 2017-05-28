@@ -129,13 +129,13 @@ void Curve::addControlPoint(double x, double y) {
     controlPoints.emplace_back(x, y);
 }
 
-void Curve::generateCurve() {
+void BezierCurve::generateCurve() {
     int nCurves = (controlPoints.size()-4)/3 +1;
     _coords.clear();
     auto cp = controlPoints;
 
     for(int i = 0; i < nCurves; i++) {
-      for(double t = 0; t < 1; t += tRlx) {
+      for(double t = 0; t < 1; t += deltinha) {
           double x, y;
 
           double l1, l2, l3, l4;
@@ -159,14 +159,6 @@ void Curve::generateCurve() {
     cout << _coords.size() << endl;
 }
 
-vector<Coordinate>& BSplineCurve::getControlPoints() {
-    return controlPoints;
-}
-
-void BSplineCurve::addControlPoint(double x, double y) {
-    controlPoints.emplace_back(x, y);
-}
-
 void BSplineCurve::generateCurve() {
     _coords.clear();
     int nCurves = controlPoints.size()-3;
@@ -188,12 +180,12 @@ void BSplineCurve::generateCurve() {
 
       //1 Calcular coeficientes
       double ax = - m1 * cp1[0] + 0.5 * cp2[0] - 0.5 * cp3[0] + m1 * cp4[0];
-      double bx =  0.5 * cp1[0] + m1  * cp2[0] + 0.5 * cp3[0];
+      double bx =  0.5 * cp1[0] -       cp2[0] + 0.5 * cp3[0];
       double cx = -0.5 * cp1[0] + 0.5 * cp3[0];
       double dx =   m1 * cp1[0] + m2  * cp2[0] + m1  * cp3[0];
 
       double ay = - m1 * cp1[1] + 0.5 * cp2[1] - 0.5 * cp3[1] + m1 * cp4[1];
-      double by =  0.5 * cp1[1] + m1  * cp2[1] + 0.5 * cp3[1];
+      double by =  0.5 * cp1[1] -       cp2[1] + 0.5 * cp3[1];
       double cy = -0.5 * cp1[1] + 0.5 * cp3[1];
       double dy =   m1 * cp1[1] + m2  * cp2[1] + m1  * cp3[1];
 

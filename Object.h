@@ -54,23 +54,24 @@ class Polygon: public Object {
 class Curve: public Object {
   public:
     Curve(string name) : Object(name, ObjectType::CURVE) {}
-    void generateCurve();
+    void generateCurve() {};
     vector<Coordinate>& getControlPoints();
     void addControlPoint(double x, double y);
-  private:
-    double tRlx = 0.02;//determina a quantidade de pontos que vão ser criados
+  protected:
+    double deltinha = 0.02;//determina a quantidade de pontos que vão ser criados
     vector<Coordinate> controlPoints; //4, 7, 10, 13...
 };
 
-class BSplineCurve: public Object {
-  public:
-    BSplineCurve(string name) : Object(name, ObjectType::CURVE) {}
+class BezierCurve: public Curve {
+public:
+    BezierCurve(string name): Curve(name) {}
     void generateCurve();
-    vector<Coordinate>& getControlPoints();
-    void addControlPoint(double x, double y);
-  private:
-    double deltinha = 0.2;//determina a quantidade de pontos que vão ser criados
-    vector<Coordinate> controlPoints; //4, 7, 10, 13...
+};
+
+class BSplineCurve: public Curve {
+  public:
+    BSplineCurve(string name) : Curve(name) {}
+    void generateCurve();
 };
 
 namespace ObjectManipulationMatrix {
