@@ -158,3 +158,74 @@ void Curve::generateCurve() {
     }
     cout << _coords.size() << endl;
 }
+
+vector<Coordinate>& BSplineCurve::getControlPoints() {
+    return controlPoints;
+}
+
+void BSplineCurve::addControlPoint(double x, double y) {
+    controlPoints.emplace_back(x, y);
+}
+
+void BSplineCurve::generateCurve() {
+    _coords.clear();
+    int nCurves = controlPoints.size()-3;
+    auto cp = controlPoints;
+
+    //0 Definir deltinha e deltinha2 deltinha3
+    double t = deltinha;
+    double t2 = t * t;
+    double t3 = t2 * t;
+
+    double m1 = 1.0/6.0;
+    double m2 = 2.0/3.0;
+
+    for(int i = 0; i < nCurves; i++) {
+      Coordinate cp1 = cp[i];
+      Coordinate cp2 = cp[i+1];
+      Coordinate cp3 = cp[i+2];
+      Coordinate cp4 = cp[i+3];
+
+      //1 Calcular coeficientes
+      double ax = - m1 * cp1[0] + 0.5 * cp2[0] - 0.5 * cp3[0] + m1 * cp4[0];
+      double bx =  0.5 * cp1[0] + m1  * cp2[0] + 0.5 * cp3[0];
+      double cx = -0.5 * cp1[0] + 0.5 * cp3[0];
+      double dx =   m1 * cp1[0] + m2  * cp2[0] + m1  * cp3[0];
+
+      double ay = - m1 * cp1[1] + 0.5 * cp2[1] - 0.5 * cp3[1] + m1 * cp4[1];
+      double by =  0.5 * cp1[1] + m1  * cp2[1] + 0.5 * cp3[1];
+      double cy = -0.5 * cp1[1] + 0.5 * cp3[1];
+      double dy =   m1 * cp1[1] + m2  * cp2[1] + m1  * cp3[1];
+
+      //2 Calcular delta, derivadas f0 = d d1f0 d2f0 d3f0 para o primeiro ponto da curva P1
+      double d1x = ax*t3 + bx*t2 + cx*t;
+      double d2x = 6*ax*t3 + 2*bx*t2;
+      double d3x = 6*ax*t3;
+
+      double d1y = ay*t3 + by*t2 + cy*t;
+      double d2y = 6*ay*t3 + 2*by*t2;
+      double d3y = 6*ay*t3;
+
+      _coords.emplace_back(dx, dy);
+      //3 Chamar o desenha curvafwddiff para os outros pontos
+      double oldx = dx;
+      double oldy = dy;
+      for(double t = 0.0; t < 1.0; t += deltinha) {
+        double x = oldx;
+        double y = oldy;
+
+        x += d1x;
+        d1x += d2x;
+        d2x += d3x;
+
+        y += d1y;
+        d1y += d2y;
+        d2y += d3y;
+
+        _coords.emplace_back(x, y);
+        oldx = x;
+        oldy = y;
+      }
+    }
+    cout << _coords.size() << endl;
+}

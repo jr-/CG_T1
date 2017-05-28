@@ -62,6 +62,17 @@ class Curve: public Object {
     vector<Coordinate> controlPoints; //4, 7, 10, 13...
 };
 
+class BSplineCurve: public Object {
+  public:
+    BSplineCurve(string name) : Object(name, ObjectType::CURVE) {}
+    void generateCurve();
+    vector<Coordinate>& getControlPoints();
+    void addControlPoint(double x, double y);
+  private:
+    double deltinha = 0.2;//determina a quantidade de pontos que vão ser criados
+    vector<Coordinate> controlPoints; //4, 7, 10, 13...
+};
+
 namespace ObjectManipulationMatrix {
 
 template <int rows, int columns>

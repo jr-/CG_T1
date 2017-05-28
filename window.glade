@@ -62,6 +62,12 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
+  <object class="GtkAdjustment" id="adj_x_bspline">
+    <property name="lower">-5000</property>
+    <property name="upper">5000</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="adj_x_curve">
     <property name="lower">-5000</property>
     <property name="upper">5000</property>
@@ -92,6 +98,12 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
+  <object class="GtkAdjustment" id="adj_y_bspline">
+    <property name="lower">-5000</property>
+    <property name="upper">5000</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="adj_y_curve">
     <property name="lower">-5000</property>
     <property name="upper">5000</property>
@@ -104,7 +116,7 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
-  <object class="GtkListStore" id="liststore_addcoordcurve">
+  <object class="GtkListStore" id="liststore_addcoordbspline">
     <columns>
       <!-- column-name x -->
       <column type="gdouble"/>
@@ -112,22 +124,22 @@
       <column type="gdouble"/>
     </columns>
   </object>
-  <object class="GtkDialog" id="dialog_curve">
+  <object class="GtkDialog" id="dialog_bspline">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Adicionar Poligono</property>
+    <property name="title" translatable="yes">Adicionar Curva BSpline</property>
     <property name="type_hint">dialog</property>
     <property name="transient_for">main_window</property>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox11">
+      <object class="GtkBox" id="dialog-vbox13">
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area11">
+          <object class="GtkButtonBox" id="dialog-action_area13">
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="button_cancel_dgcurve">
+              <object class="GtkButton" id="button_cancel_dgbspline">
                 <property name="label" translatable="yes">Cancelar</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -140,7 +152,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button_ok_dgcurve">
+              <object class="GtkButton" id="button_ok_dgbspline">
                 <property name="label" translatable="yes">OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -160,16 +172,16 @@
           </packing>
         </child>
         <child>
-          <object class="GtkBox" id="box21">
+          <object class="GtkBox" id="box25">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkBox" id="box22">
+              <object class="GtkBox" id="box26">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkLabel" id="label24">
+                  <object class="GtkLabel" id="label27">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Nome:</property>
@@ -181,7 +193,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="name_dgcurve">
+                  <object class="GtkEntry" id="name_dgbspline">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                   </object>
@@ -199,11 +211,11 @@
               </packing>
             </child>
             <child>
-              <object class="GtkBox" id="box23">
+              <object class="GtkBox" id="box27">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkLabel" id="label25">
+                  <object class="GtkLabel" id="label28">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">x:</property>
@@ -215,7 +227,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSpinButton" id="entryx_dgcurve">
+                  <object class="GtkSpinButton" id="entryx_dgbspline">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="text" translatable="yes">0,00</property>
@@ -229,7 +241,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label26">
+                  <object class="GtkLabel" id="label29">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">y:</property>
@@ -241,7 +253,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSpinButton" id="entryy_dgcurve">
+                  <object class="GtkSpinButton" id="entryy_dgbspline">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="text" translatable="yes">0,00</property>
@@ -262,19 +274,19 @@
               </packing>
             </child>
             <child>
-              <object class="GtkBox" id="box24">
+              <object class="GtkBox" id="box28">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
                   <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_addcoord_dgcurve">
+                  <object class="GtkButton" id="btn_addcoord_dgbspline">
                     <property name="label" translatable="yes">Adicionar</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="clicked" handler="btn_add_coord_curve_clicked" swapped="no"/>
+                    <signal name="clicked" handler="btn_addcoord_bspline_clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -293,25 +305,25 @@
               </packing>
             </child>
             <child>
-              <object class="GtkScrolledWindow" id="scrolledwindow4">
+              <object class="GtkScrolledWindow" id="scrolledwindow5">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="shadow_type">in</property>
                 <child>
-                  <object class="GtkTreeView" id="treeview_addcoordcurve">
+                  <object class="GtkTreeView" id="treeview_addcoordbspline">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="model">liststore_addcoordcurve</property>
+                    <property name="model">liststore_addcoordbspline</property>
                     <property name="search_column">0</property>
                     <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="treeview-selection11"/>
+                      <object class="GtkTreeSelection" id="treeview-selection7"/>
                     </child>
                     <child>
-                      <object class="GtkTreeViewColumn" id="x_coordcurve">
+                      <object class="GtkTreeViewColumn" id="x_coordcurve1">
                         <property name="sizing">autosize</property>
                         <property name="title" translatable="yes">x</property>
                         <child>
-                          <object class="GtkCellRendererText" id="cel_name2"/>
+                          <object class="GtkCellRendererText" id="cel_name3"/>
                           <attributes>
                             <attribute name="text">0</attribute>
                           </attributes>
@@ -319,11 +331,11 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkTreeViewColumn" id="y_coordcurve">
+                      <object class="GtkTreeViewColumn" id="y_coordcurve1">
                         <property name="resizable">True</property>
                         <property name="title" translatable="yes">y</property>
                         <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext1">
+                          <object class="GtkCellRendererText" id="cellrenderertext3">
                             <property name="alignment">right</property>
                             <property name="editable">True</property>
                           </object>
@@ -352,9 +364,17 @@
       </object>
     </child>
     <action-widgets>
-      <action-widget response="-6">button_cancel_dgcurve</action-widget>
-      <action-widget response="-5">button_ok_dgcurve</action-widget>
+      <action-widget response="-6">button_cancel_dgbspline</action-widget>
+      <action-widget response="-5">button_ok_dgbspline</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkListStore" id="liststore_addcoordcurve">
+    <columns>
+      <!-- column-name x -->
+      <column type="gdouble"/>
+      <!-- column-name y -->
+      <column type="gdouble"/>
+    </columns>
   </object>
   <object class="GtkListStore" id="liststore_addcoordplg">
     <columns>
@@ -462,6 +482,20 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkButton" id="btn_bsplinecurve">
+                    <property name="label" translatable="yes">Add BSpline Curve</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="btn_bspline_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="btn_rotate">
                     <property name="label" translatable="yes">Rotate</property>
                     <property name="visible">True</property>
@@ -472,7 +506,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">2</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
@@ -486,7 +520,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child>
@@ -500,7 +534,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
               </object>
@@ -888,6 +922,250 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkDialog" id="dialog_curve">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Adicionar Curva Bezier</property>
+    <property name="type_hint">dialog</property>
+    <property name="transient_for">main_window</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="dialog-vbox11">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="dialog-action_area11">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="button_cancel_dgcurve">
+                <property name="label" translatable="yes">Cancelar</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button_ok_dgcurve">
+                <property name="label" translatable="yes">OK</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box21">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkBox" id="box22">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkLabel" id="label24">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Nome:</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="name_dgcurve">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="box23">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkLabel" id="label25">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">x:</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="entryx_dgcurve">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="text" translatable="yes">0,00</property>
+                    <property name="adjustment">adj_x_curve</property>
+                    <property name="digits">2</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label26">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">y:</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="entryy_dgcurve">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="text" translatable="yes">0,00</property>
+                    <property name="adjustment">adj_y_curve</property>
+                    <property name="digits">2</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="box24">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btn_addcoord_dgcurve">
+                    <property name="label" translatable="yes">Adicionar</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="btn_add_coord_curve_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow" id="scrolledwindow4">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="shadow_type">in</property>
+                <child>
+                  <object class="GtkTreeView" id="treeview_addcoordcurve">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="model">liststore_addcoordcurve</property>
+                    <property name="search_column">0</property>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection" id="treeview-selection11"/>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="x_coordcurve">
+                        <property name="sizing">autosize</property>
+                        <property name="title" translatable="yes">x</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="cel_name2"/>
+                          <attributes>
+                            <attribute name="text">0</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="y_coordcurve">
+                        <property name="resizable">True</property>
+                        <property name="title" translatable="yes">y</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext1">
+                            <property name="alignment">right</property>
+                            <property name="editable">True</property>
+                          </object>
+                          <attributes>
+                            <attribute name="text">1</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-6">button_cancel_dgcurve</action-widget>
+      <action-widget response="-5">button_ok_dgcurve</action-widget>
+    </action-widgets>
   </object>
   <object class="GtkDialog" id="dialog_line">
     <property name="can_focus">False</property>
